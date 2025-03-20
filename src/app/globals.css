@@ -128,3 +128,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Reduce padding for notion table view */
+.notion-table-view {
+  padding-left: 20% !important;
+  padding-right: 20% !important;
+}

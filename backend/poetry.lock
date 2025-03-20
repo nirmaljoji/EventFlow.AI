@@ -2848,6 +2848,21 @@ tgrep = ["pyparsing"]
 twitter = ["twython"]
 
 [[package]]
+name = "notion-client"
+version = "2.3.0"
+description = "Python client for the official Notion API"
+optional = false
+python-versions = "<4,>=3.7"
+groups = ["main"]
+files = [
+    {file = "notion-client-2.3.0.tar.gz", hash = "sha256:c4b4ae04ce182eb89611d41544dac710049683a4d7309c4b22fde52f81cbcb39"},
+    {file = "notion_client-2.3.0-py2.py3-none-any.whl", hash = "sha256:6696bb057b7872477077d6a3bb4299c4a7924450e7d168174e79cbf8e01d9576"},
+]
+
+[package.dependencies]
+httpx = ">=0.23.0"
+
+[[package]]
 name = "numpy"
 version = "1.26.4"
 description = "Fundamental package for array computing in Python"
@@ -6168,4 +6183,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "cbe6b101e7b8d1c7f5ba430ee4344e23da7992d9d68602b1a434f35075d67eb5"
+content-hash = "e1f5b5745d91ae6d317ddb0ff79b752ee6bb69d15c3ff1bf70d6082da471e5da"

@@ -2,8 +2,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from .langgraph.agent import assistant_ui_graph
 from .routes.add_langgraph_route import add_langgraph_route
+from .routes.auth import router as auth_router
+from .database.mongodb import MongoDB
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    MongoDB.connect_db()
+    yield
+    MongoDB.close_db()
+
+app = FastAPI(lifespan=lifespan)
 # cors
 app.add_middleware(
     CORSMiddleware,
@@ -14,8 +24,8 @@ app.add_middleware(
 )
 
 add_langgraph_route(app, assistant_ui_graph, "/api/chat")
+app.include_router(auth_router, prefix="/api/auth")
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)
