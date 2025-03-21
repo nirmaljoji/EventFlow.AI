@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EventFlow.AI
 
-## Getting Started
+A modern event management application built with Next.js and Python.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js (Latest LTS version)
+- Python (3.11 - 3.14)
+- Poetry (Python package manager)
+
+## Setup Instructions
+
+1. Clone the repository
+2. Open the project in Cursor IDE
+3. Add the backend folder to workspace:
+   - Click "Add folder to workspace"
+   - Select the backend folder
+   - Save workspace file in the repository
+
+### Frontend Setup
+
+1. Create `.env` file in the root directory with:
+```
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NOTION_TOKEN=""
+NEXT_PUBLIC_NOTION_PAGE_ID="58768e4460f647119f0a1e5dd40cc9bf"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Backend Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create `.env` file in the backend directory with:
 
-## Learn More
+```
+OPENAI_API_KEY=""
+MONGODB_URL=""
+DATABASE_NAME=eventflow_db
 
-To learn more about Next.js, take a look at the following resources:
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Navigate to backend directory
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Install Poetry if not already installed:
+```bash
+pip install poetry
+```
 
-## Deploy on Vercel
+3. Install dependencies using Poetry:
+```bash
+poetry install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Running the Application
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Start the development servers:
+```bash
+npm run dev
+```
+
+This will start both frontend and backend servers.
+
+## Installing new python packages
+
+To add new packages to the backend:
+```bash
+cd backend
+poetry add <package-name>
+```
