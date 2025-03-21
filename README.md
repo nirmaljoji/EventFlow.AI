@@ -37,7 +37,7 @@ npm install
 
 ```
 OPENAI_API_KEY=""
-MONGODB_URL=""
+MONGODB_URL="mongodb+srv://<username>:<password>@eventflowaicluster.qtztj.mongodb.net/?retryWrites=true&w=majority&appName=eventFlowAiCluster"
 DATABASE_NAME=eventflow_db
 
 ```
