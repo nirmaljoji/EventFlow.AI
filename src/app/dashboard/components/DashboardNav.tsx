@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Calendar } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function DashboardNav() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // Remove the JWT token from localStorage
+    localStorage.removeItem('token');
+    // Redirect to landing page
+    router.push('/');
+  };
+
   return (
     <header className="w-full bg-white/90 backdrop-blur-md shadow-sm py-2 border-b">
       <div className="container mx-auto flex items-center justify-between px-4">
@@ -41,7 +51,10 @@ export function DashboardNav() {
               <DropdownMenuItem className="cursor-pointer">
                 Profile Settings
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-red-600">
+              <DropdownMenuItem 
+                className="cursor-pointer text-red-600"
+                onClick={handleLogout}
+              >
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
