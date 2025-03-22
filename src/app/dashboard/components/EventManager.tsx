@@ -1,96 +1,65 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { NotionRenderer } from 'react-notion-x';
-import { ExtendedRecordMap } from 'notion-types';
-import { NotionPage } from '../components/NotionPage'
-import {
-    previewImagesEnabled,
-    rootNotionPageId
-  } from '../config/config'
+import { useState } from "react";
+import Overview from "./Overview";
+import Guests from "./Guests";
+import Food from "./Food";
+import Decoration from "./Decoration";
+import Licenses from "./Licences";
 
-// Import required styles
-import 'react-notion-x/src/styles.css';
-import 'prismjs/themes/prism-tomorrow.css';
-import 'katex/dist/katex.min.css';
-
-interface NotionError {
-  error: string;
-  details?: string;
-  code?: string;
-}
+import { Button } from "@/components/ui/button";
+import { BarChart3, Users, Utensils, Palette, FileCheck } from "lucide-react";
 
 export default function EventManager() {
-  const [recordMap, setRecordMap] = useState<ExtendedRecordMap | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<NotionError | null>(null);
+  const [activeView, setActiveView] = useState("overview");
 
-  useEffect(() => {
-    const fetchNotionData = async () => {
-      try {
-        const response = await fetch('/api/notion');
-        const data = await response.json();
-
-        if (!response.ok) {
-          setError(data as NotionError);
-          setLoading(false);
-          return;
-        }
-
-        setRecordMap(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching Notion data:', err);
-        setError({
-          error: 'Failed to fetch Notion data',
-          details: err instanceof Error ? err.message : 'Unknown error occurred'
-        });
-        setLoading(false);
-      }
-    };
-
-    fetchNotionData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center text-red-500 p-4">
-        <h3 className="text-xl font-semibold mb-2">{error.error}</h3>
-        {error.details && (
-          <p className="text-sm text-red-400 mb-2">{error.details}</p>
-        )}
-        {error.code && (
-          <p className="text-xs text-red-300">Error Code: {error.code}</p>
-        )}
-      </div>
-    );
-  }
-
-  if (!recordMap) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <p>No content available</p>
-      </div>
-    );
-  }
+  const navOptions = [
+    { id: "overview", label: "Overview", icon: <BarChart3 className="h-5 w-5" /> },
+    { id: "guests", label: "Guests", icon: <Users className="h-5 w-5" /> },
+    { id: "food", label: "Food & Beverages", icon: <Utensils className="h-5 w-5" /> },
+    { id: "decoration", label: "Decoration", icon: <Palette className="h-5 w-5" /> },
+    { id: "licenses", label: "Licenses & Permits", icon: <FileCheck className="h-5 w-5" /> }
+  ];
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden bg-white dark:bg-gray-900 py-8">
-      <div>
-            <NotionPage
-            recordMap={recordMap}
-            rootPageId={rootNotionPageId}
-            previewImagesEnabled={previewImagesEnabled}
-            />
+    <div className="relative h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto p-6">
+        {activeView === "overview" && <Overview />}
+        {activeView === "guests" && <Guests />}
+        {activeView === "food" && <Food />}
+        {activeView === "decoration" && <Decoration />}
+        {activeView === "licenses" && <Licenses />}
+      </div>
+
+      {/* Permanently Expanded Navigation Menu Positioned at the Bottom */}
+      <div 
+        id="floating-nav"
+        className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-50"
+      >
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl p-1 flex gap-1">
+          {navOptions.map((option) => (
+            <button
+              key={option.id}
+              onClick={() => setActiveView(option.id)}
+              className={`
+                p-2 rounded-lg flex items-center justify-center gap-2
+                transition-all duration-200
+                ${
+                  activeView === option.id 
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" 
+                    : "hover:bg-slate-100 text-slate-700 dark:hover:bg-slate-700 dark:text-slate-300"
+                }
+              `}
+            >
+              {option.icon}
+              <span className="text-sm font-medium whitespace-nowrap">
+                {option.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
-} 
+}

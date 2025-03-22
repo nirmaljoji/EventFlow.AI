@@ -9,7 +9,7 @@ import {
 } from "@assistant-ui/react";
 import { authService } from '@/app/services/auth';
 import { DashboardNav } from './components/DashboardNav';
-import EventManager from './components/EventManager';
+import  EventManager  from './components/EventManager';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export default function DashboardPage() {
       <main className="flex-1 overflow-hidden flex">
         {/* Task Manager with dynamic width */}
         <div className="h-full overflow-hidden" style={{ width: `${100 - assistantWidth}%` }}>
-          <EventManager />
+            <EventManager/>
         </div>
         
         {/* Resizer handle */}
