@@ -15,7 +15,7 @@ export default function EventPageClient({ event }: EventPageClientProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false)
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="relative h-[calc(100vh-4rem)] overflow-hidden pt-0">
       <div
         className={`grid h-full transition-all duration-300 ${isPanelOpen ? "grid-cols-[1fr_500px]" : "grid-cols-[1fr_0px]"}`}
       >
