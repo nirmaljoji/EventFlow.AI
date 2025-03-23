@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import EventDetails from "@/components/events/event-details"
 import { mockEvents } from "@/lib/mock-data"
+import EventPageClient from "./event-page-client"
 
 interface EventPageProps {
   params: {
@@ -31,6 +31,6 @@ export default function EventPage({ params }: EventPageProps) {
     notFound()
   }
 
-  return <EventDetails event={event} />
+  return <EventPageClient event={event} />
 }
 
