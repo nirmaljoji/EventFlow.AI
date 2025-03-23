@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "fastapi-dev": "cd backend && poetry install && python -B -m uvicorn api.index:app --reload",
-    "fastapi-dev": "cd backend && poetry install && python -B -m uvicorn api.index:app --reload",
     "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
     "next-dev": "next dev --turbopack",
     "build": "next build",
@@ -66,6 +65,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.15",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
