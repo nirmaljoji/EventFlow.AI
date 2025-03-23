@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -28,7 +28,38 @@ class SignupRequest(BaseModel):
     firstName: str
     lastName: str
 
-# Helper functions
+#helper functions
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+
+        if username is None:
+            raise credentials_exception
+        
+        # Get database connection
+        db = MongoDB.get_db()
+
+        user = db.users.find_one({"email": username})
+        
+        if user is None:
+            raise credentials_exception
+            
+        # Return the user ID as string
+        return str(user["_id"])
+        
+    except JWTError:
+        raise credentials_exception
+
+    
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
