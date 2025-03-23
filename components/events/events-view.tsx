@@ -119,7 +119,7 @@ export default function EventsView() {
         <DashboardHeader heading="Events" text="Browse and manage all your events">
           <Button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="gap-1 bg-evenflow-gradient hover:bg-evenflow-gradient-hover border-0"
+            className="gap-1 bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0"
           >
             <Plus className="h-4 w-4" />
             Create Event
@@ -273,7 +273,7 @@ export default function EventsView() {
             )}
           </div>
 
-          <ScrollArea className="h-[calc(100vh-320px)]">
+          <ScrollArea className="h-[calc(100vh-380px)]">
             {filteredEvents.length > 0 ? (
               <div className={`grid gap-4 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : ""}`}>
                 {filteredEvents.map((event) => {

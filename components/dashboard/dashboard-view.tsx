@@ -32,7 +32,7 @@ export default function DashboardView() {
         <DashboardHeader heading="Event Dashboard" text="Manage your events and create new ones.">
           <Button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="gap-1 bg-evenflow-gradient hover:bg-evenflow-gradient-hover border-0"
+            className="gap-1 bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0"
           >
             <PlusCircle className="h-4 w-4" />
             Create Event

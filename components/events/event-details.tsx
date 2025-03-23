@@ -52,7 +52,7 @@ export default function EventDetails({ event }: EventDetailsProps) {
   }
 
   return (
-    <div className="container mx-auto max-w-7xl p-6">
+    <div className="mx-auto h-full w-full max-w-7xl p-6 overflow-y-auto">
       <div className="mb-6 flex flex-col space-y-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -150,8 +150,8 @@ export default function EventDetails({ event }: EventDetailsProps) {
       </div>
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <div className="sticky top-16 z-10 -mx-6 bg-background px-6 py-2">
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+        <div className="bg-background px-6 py-2 -mx-6 overflow-x-auto">
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 flex-nowrap min-w-max">
             <TabsTrigger
               value="overview"
               className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
@@ -160,19 +160,19 @@ export default function EventDetails({ event }: EventDetailsProps) {
             </TabsTrigger>
             <TabsTrigger
               value="food"
-              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary whitespace-nowrap"
             >
               Food & Catering
             </TabsTrigger>
             <TabsTrigger
               value="licenses"
-              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary whitespace-nowrap"
             >
               Licenses & Permits
             </TabsTrigger>
             <TabsTrigger
               value="guests"
-              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary whitespace-nowrap"
             >
               Guest Management
             </TabsTrigger>
