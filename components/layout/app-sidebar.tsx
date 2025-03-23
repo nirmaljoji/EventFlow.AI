@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, LayoutDashboard, Users, Settings, BarChart, MessageSquare, PlusCircle, Bot, ChevronRight, ChevronLeft } from "lucide-react"
+import { Calendar, LayoutDashboard, Users, Settings, BarChart, MessageSquare, PlusCircle, Bot, ChevronRight, ChevronLeft, Store } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -22,6 +22,11 @@ const sidebarLinks = [
     title: "Events",
     href: "/events",
     icon: Calendar,
+  },
+  {
+    title: "Vendors",
+    href: "/vendors",
+    icon: Store,
   },
   {
     title: "Attendees",
