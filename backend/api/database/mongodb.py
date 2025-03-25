@@ -6,18 +6,17 @@ from ..utils.logger import logger
 load_dotenv()
 
 class MongoDB:
-    client: MongoClient = None
+    client: MongoClient | None = None
     db = None
 
     @classmethod
     def connect_db(cls):
         try:
-
             mongodb_url = os.getenv("MONGODB_URL")
             database_name = os.getenv("DATABASE_NAME")
             
             cls.client = MongoClient(mongodb_url)
-            cls.db = cls.client[database_name]
+            cls.db = cls.client.get_database(database_name)
             
             logger.info("Mongo Check Complete")
         except Exception as e:
