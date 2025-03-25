@@ -6,14 +6,14 @@ from langgraph.errors import NodeInterrupt
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel
 from .tools import tools
-from .state import AgentState
+from ..state import AgentState
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-model = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+model = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o")
 
 
 def should_continue(state):
@@ -91,4 +91,4 @@ workflow.add_conditional_edges(
 
 workflow.add_edge("tools", "agent")
 
-assistant_ui_graph = workflow.compile()
+events_graph = workflow.compile(name="Informtion related to Events")

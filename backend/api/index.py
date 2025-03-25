@@ -1,6 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from .langgraph.agent import assistant_ui_graph
+from .langgraph.supervisor_agent import assistant_ui_graph
 from .routes.add_langgraph_route import add_langgraph_route
 from .routes.auth import router as auth_router
 from .routes.events import router as events_router

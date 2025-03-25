@@ -121,6 +121,7 @@ def convert_to_langchain_messages(
                 for p in msg.content
                 if isinstance(p, LanguageModelToolCallPart)
             ]
+            print(tool_calls)
             result.append(AIMessage(content=text_content, tool_calls=tool_calls))
 
         elif msg.role == "tool":
@@ -149,24 +150,36 @@ class ChatRequest(BaseModel):
 
 def add_langgraph_route(app: FastAPI, graph, path: str):
     async def chat_completions(request: ChatRequest):
+
+            
         inputs = convert_to_langchain_messages(request.messages)
+
+        accumulated_content = "" 
 
         async def run(controller: RunController):
             tool_calls = {}
             tool_calls_by_idx = {}
+            nonlocal accumulated_content  # Use nonlocal to modify the outer variable
 
             async for msg, metadata in graph.astream(
                 {"messages": inputs},
-                {
+                config ={
                     "configurable": {
                         "system": request.system,
                         "frontend_tools": request.tools,
                     }
                 },
-                stream_mode="messages",
+                stream_mode="messages"
             ):
                 if isinstance(msg, ToolMessage):
-                    tool_controller = tool_calls[msg.tool_call_id]
+                    tool_controller = tool_calls.get(msg.tool_call_id)
+                    if tool_controller is None:
+                        # The MCP tool may send a ToolMessage before its call is registered.
+                        # Register a fallback tool call using "MCP" (or an appropriate tool name) as a default.
+                        tool_controller = await controller.add_tool_call("MCP", msg.tool_call_id)
+                        tool_calls[msg.tool_call_id] = tool_controller
+                    
+                    # Accumulate tool message content
                     tool_controller.set_result(msg.content)
 
                 if isinstance(msg, AIMessageChunk) or isinstance(msg, AIMessage):
@@ -184,7 +197,7 @@ def add_langgraph_route(app: FastAPI, graph, path: str):
                             tool_controller = tool_calls_by_idx[chunk["index"]]
 
                         tool_controller.append_args_text(chunk["args"])
-
+            
         return DataStreamResponse(create_run(run))
 
     app.add_api_route(path, chat_completions, methods=["POST"])
