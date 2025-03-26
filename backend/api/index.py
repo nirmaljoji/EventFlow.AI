@@ -6,7 +6,7 @@ from .routes.auth import router as auth_router
 from .routes.events import router as events_router
 from .database.mongodb import MongoDB
 from contextlib import asynccontextmanager
-
+from .routes.food import router as food_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +27,7 @@ app.add_middleware(
 add_langgraph_route(app, assistant_ui_graph, "/api/chat")
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(events_router, prefix="/api/events", tags=["events"])
+app.include_router(food_router, prefix="/api/events", tags=["food"])
 
 if __name__ == "__main__":
     import uvicorn
