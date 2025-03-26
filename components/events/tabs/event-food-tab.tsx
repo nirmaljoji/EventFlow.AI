@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Wine, ShoppingBasket, Plus, Trash2 } from "lucide-react"
+import { UtensilsCrossed, Wine, ShoppingBasket, Plus, Trash2, Edit } from "lucide-react"
 import { useState, useEffect } from "react"
 import type { Event } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -96,6 +96,16 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     status: "In Progress",
     progress: 0
   })
+
+  // Edit mode tracking states
+  const [isEditingMenuItem, setIsEditingMenuItem] = useState(false)
+  const [editingMenuItemIndex, setEditingMenuItemIndex] = useState<number | null>(null)
+  
+  const [isEditingBeverage, setIsEditingBeverage] = useState(false)
+  const [editingBeverageIndex, setEditingBeverageIndex] = useState<number | null>(null)
+  
+  const [isEditingVendor, setIsEditingVendor] = useState(false)
+  const [editingVendorIndex, setEditingVendorIndex] = useState<number | null>(null)
 
   // Get token from local storage
   const getToken = () => {
@@ -204,6 +214,74 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     }
   }
 
+  // Function to handle editing menu item
+  const handleEditMenuItem = (index: number) => {
+    if (foodData) {
+      setNewMenuItem({...foodData.menu_items[index]})
+      setIsEditingMenuItem(true)
+      setEditingMenuItemIndex(index)
+      setMenuItemDialogOpen(true)
+    }
+  }
+
+  // Function to handle editing beverage
+  const handleEditBeverage = (index: number) => {
+    if (foodData) {
+      setNewBeverage({...foodData.beverages[index]})
+      setIsEditingBeverage(true)
+      setEditingBeverageIndex(index)
+      setBeverageDialogOpen(true)
+    }
+  }
+
+  // Function to handle editing vendor
+  const handleEditVendor = (index: number) => {
+    if (foodData) {
+      setNewVendor({...foodData.vendors[index]})
+      setIsEditingVendor(true)
+      setEditingVendorIndex(index)
+      setVendorDialogOpen(true)
+    }
+  }
+
+  // Reset form function for menu items
+  const resetMenuItemForm = () => {
+    setNewMenuItem({
+      name: "",
+      type: "Main",
+      dietary: "None",
+      status: "Pending"
+    })
+    setIsEditingMenuItem(false)
+    setEditingMenuItemIndex(null)
+  }
+
+  // Reset form function for beverages
+  const resetBeverageForm = () => {
+    setNewBeverage({
+      name: "",
+      category: "Non-Alcoholic",
+      serving: "Glass",
+      status: "Pending"
+    })
+    setIsEditingBeverage(false)
+    setEditingBeverageIndex(null)
+  }
+
+  // Reset form function for vendors
+  const resetVendorForm = () => {
+    setNewVendor({
+      name: "",
+      type: "",
+      contact: "",
+      phone: "",
+      status: "In Progress",
+      progress: 0
+    })
+    setIsEditingVendor(false)
+    setEditingVendorIndex(null)
+  }
+
   // CRUD operations for menu items
   const handleAddMenuItem = async () => {
     try {
@@ -213,40 +291,58 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      const response = await fetch(`${apiUrl}/api/events/${event_id}/menu-items`, {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(newMenuItem)
-      })
-      
-      if (!response.ok) {
-        throw new Error("Failed to add menu item")
+      if (isEditingMenuItem && editingMenuItemIndex !== null) {
+        // Update existing menu item
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/menu-items/${editingMenuItemIndex}`, {
+          method: 'PUT',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newMenuItem)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to update menu item")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Menu item updated successfully"
+        })
+      } else {
+        // Add new menu item
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/menu-items`, {
+          method: 'POST',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newMenuItem)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to add menu item")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Menu item added successfully"
+        })
       }
       
       // Refresh data
       fetchFoodData()
       
       // Reset form and close dialog
-      setNewMenuItem({
-        name: "",
-        type: "Main",
-        dietary: "None",
-        status: "Pending"
-      })
+      resetMenuItemForm()
       setMenuItemDialogOpen(false)
       
-      toast({
-        title: "Success",
-        description: "Menu item added successfully"
-      })
     } catch (err) {
       toast({
         variant: "destructive", 
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to add menu item"
+        description: err instanceof Error ? err.message : "Failed to process menu item"
       })
     }
   }
@@ -296,40 +392,58 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      const response = await fetch(`${apiUrl}/api/events/${event_id}/beverages`, {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(newBeverage)
-      })
-      
-      if (!response.ok) {
-        throw new Error("Failed to add beverage")
+      if (isEditingBeverage && editingBeverageIndex !== null) {
+        // Update existing beverage
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/beverages/${editingBeverageIndex}`, {
+          method: 'PUT',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newBeverage)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to update beverage")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Beverage updated successfully"
+        })
+      } else {
+        // Add new beverage
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/beverages`, {
+          method: 'POST',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newBeverage)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to add beverage")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Beverage added successfully"
+        })
       }
       
       // Refresh data
       fetchFoodData()
       
       // Reset form and close dialog
-      setNewBeverage({
-        name: "",
-        category: "Non-Alcoholic",
-        serving: "Glass",
-        status: "Pending"
-      })
+      resetBeverageForm()
       setBeverageDialogOpen(false)
       
-      toast({
-        title: "Success",
-        description: "Beverage added successfully"
-      })
     } catch (err) {
       toast({
         variant: "destructive", 
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to add beverage"
+        description: err instanceof Error ? err.message : "Failed to process beverage"
       })
     }
   }
@@ -379,42 +493,58 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      const response = await fetch(`${apiUrl}/api/events/${event_id}/vendors`, {
-        method: 'POST',
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(newVendor)
-      })
-      
-      if (!response.ok) {
-        throw new Error("Failed to add vendor")
+      if (isEditingVendor && editingVendorIndex !== null) {
+        // Update existing vendor
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/vendors/${editingVendorIndex}`, {
+          method: 'PUT',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newVendor)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to update vendor")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Vendor updated successfully"
+        })
+      } else {
+        // Add new vendor
+        const response = await fetch(`${apiUrl}/api/events/${event_id}/vendors`, {
+          method: 'POST',
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newVendor)
+        })
+        
+        if (!response.ok) {
+          throw new Error("Failed to add vendor")
+        }
+        
+        toast({
+          title: "Success",
+          description: "Vendor added successfully"
+        })
       }
       
       // Refresh data
       fetchFoodData()
       
       // Reset form and close dialog
-      setNewVendor({
-        name: "",
-        type: "",
-        contact: "",
-        phone: "",
-        status: "In Progress",
-        progress: 0
-      })
+      resetVendorForm()
       setVendorDialogOpen(false)
       
-      toast({
-        title: "Success",
-        description: "Vendor added successfully"
-      })
     } catch (err) {
       toast({
         variant: "destructive", 
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to add vendor"
+        description: err instanceof Error ? err.message : "Failed to process vendor"
       })
     }
   }
@@ -453,6 +583,24 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         description: err instanceof Error ? err.message : "Failed to delete vendor"
       })
     }
+  }
+
+  // Handle dialog close for menu items
+  const handleMenuItemDialogClose = () => {
+    resetMenuItemForm()
+    setMenuItemDialogOpen(false)
+  }
+
+  // Handle dialog close for beverages
+  const handleBeverageDialogClose = () => {
+    resetBeverageForm()
+    setBeverageDialogOpen(false)
+  }
+
+  // Handle dialog close for vendors
+  const handleVendorDialogClose = () => {
+    resetVendorForm()
+    setVendorDialogOpen(false)
   }
 
   // If loading or no data
@@ -581,7 +729,15 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                           {item.status}
                         </Badge>
                       </div>
-                      <div>
+                      <div className="flex items-center space-x-2">
+                        {/* Added Edit button */}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEditMenuItem(index)}
+                        >
+                          <Edit className="h-4 w-4 text-blue-500" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -599,7 +755,10 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
               <Button 
                 variant="outline" 
                 className="gap-1 w-full"
-                onClick={() => setMenuItemDialogOpen(true)}
+                onClick={() => {
+                  resetMenuItemForm()
+                  setMenuItemDialogOpen(true)
+                }}
               >
                 <Plus className="h-4 w-4" />
                 Add Menu Item
@@ -638,7 +797,15 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                           {item.status}
                         </Badge>
                       </div>
-                      <div>
+                      <div className="flex items-center space-x-2">
+                        {/* Added Edit button */}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEditBeverage(index)}
+                        >
+                          <Edit className="h-4 w-4 text-blue-500" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -656,7 +823,10 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
               <Button 
                 variant="outline" 
                 className="gap-1 w-full"
-                onClick={() => setBeverageDialogOpen(true)}
+                onClick={() => {
+                  resetBeverageForm()
+                  setBeverageDialogOpen(true)
+                }}
               >
                 <Plus className="h-4 w-4" />
                 Add Beverage
@@ -687,6 +857,14 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                         >
                           {vendor.status}
                         </Badge>
+                        {/* Added Edit button */}
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEditVendor(index)}
+                        >
+                          <Edit className="h-4 w-4 text-blue-500" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="icon"
@@ -706,13 +884,13 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                       </div>
                     </div>
 
-                    <div className="space-y-1">
+                    {/* <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">Setup Progress</span>
                         <span>{vendor.progress}%</span>
                       </div>
                       <Progress value={vendor.progress} className="h-1" />
-                    </div>
+                    </div> */}
 
                     {index < foodData.vendors.length - 1 && <div className="my-4 border-t" />}
                   </div>
@@ -729,7 +907,10 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
               <Button 
                 variant="outline" 
                 className="gap-1 w-full"
-                onClick={() => setVendorDialogOpen(true)}
+                onClick={() => {
+                  resetVendorForm()
+                  setVendorDialogOpen(true)
+                }}
               >
                 <Plus className="h-4 w-4" />
                 Add Vendor
@@ -740,10 +921,10 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
       </Tabs>
 
       {/* Menu Item Dialog */}
-      <Dialog open={menuItemDialogOpen} onOpenChange={setMenuItemDialogOpen}>
+      <Dialog open={menuItemDialogOpen} onOpenChange={handleMenuItemDialogClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Menu Item</DialogTitle>
+            <DialogTitle>{isEditingMenuItem ? "Edit Menu Item" : "Add Menu Item"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -810,17 +991,17 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setMenuItemDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddMenuItem}>Add Item</Button>
+            <Button variant="outline" onClick={handleMenuItemDialogClose}>Cancel</Button>
+            <Button onClick={handleAddMenuItem}>{isEditingMenuItem ? "Update" : "Add"} Item</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Beverage Dialog */}
-      <Dialog open={beverageDialogOpen} onOpenChange={setBeverageDialogOpen}>
+      <Dialog open={beverageDialogOpen} onOpenChange={handleBeverageDialogClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Beverage</DialogTitle>
+            <DialogTitle>{isEditingBeverage ? "Edit Beverage" : "Add Beverage"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -884,17 +1065,17 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBeverageDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddBeverage}>Add Beverage</Button>
+            <Button variant="outline" onClick={handleBeverageDialogClose}>Cancel</Button>
+            <Button onClick={handleAddBeverage}>{isEditingBeverage ? "Update" : "Add"} Beverage</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Vendor Dialog */}
-      <Dialog open={vendorDialogOpen} onOpenChange={setVendorDialogOpen}>
+      <Dialog open={vendorDialogOpen} onOpenChange={handleVendorDialogClose}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Vendor</DialogTitle>
+            <DialogTitle>{isEditingVendor ? "Edit Vendor" : "Add Vendor"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -953,7 +1134,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
               </Select>
             </div>
             
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="vendor-progress">Progress (%)</Label>
               <Input 
                 id="vendor-progress" 
@@ -964,11 +1145,11 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                 value={newVendor.progress.toString()}
                 onChange={(e) => setNewVendor({...newVendor, progress: parseInt(e.target.value) || 0})}
               />
-            </div>
+            </div> */}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setVendorDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddVendor}>Add Vendor</Button>
+            <Button variant="outline" onClick={handleVendorDialogClose}>Cancel</Button>
+            <Button onClick={handleAddVendor}>{isEditingVendor ? "Update" : "Add"} Vendor</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

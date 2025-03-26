@@ -371,3 +371,108 @@ def delete_vendor(event_id: str, vendor_index: int, user_id: str = Depends(get_c
     )
     
     return {"detail": "Vendor deleted successfully"}
+
+@router.put("/{event_id}/menu-items/{item_index}")
+def update_menu_item(event_id: str, item_index: int, item: MenuItem, user_id: str = Depends(get_current_user)):
+    """Update a menu item by index"""
+    event_food = ensure_event_food_exists(event_id, user_id)
+    
+    if "menu_items" not in event_food or len(event_food["menu_items"]) <= item_index:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+    
+    old_item = event_food["menu_items"][item_index]
+    item_dict = item.dict()
+    
+    # Check if dietary status changed
+    old_dietary = old_item.get("dietary", "None") not in ["None", ""]
+    new_dietary = item_dict.get("dietary", "None") not in ["None", ""]
+    
+    # Update the specific menu item in the array
+    menu_items = event_food["menu_items"]
+    menu_items[item_index] = item_dict
+    
+    get_food_collection().update_one(
+        {"event_id": ObjectId(event_id)},
+        {"$set": {"menu_items": menu_items}}
+    )
+    
+    # Update summary if dietary status changed
+    if old_dietary != new_dietary:
+        dietary_change = 1 if new_dietary else -1
+        
+        get_food_collection().update_one(
+            {"event_id": ObjectId(event_id)},
+            {
+                "$inc": {"summary.dietary_options_count": dietary_change},
+                "$set": {"summary.last_updated": datetime.utcnow()}
+            }
+        )
+    else:
+        # Just update the last_updated timestamp
+        get_food_collection().update_one(
+            {"event_id": ObjectId(event_id)},
+            {"$set": {"summary.last_updated": datetime.utcnow()}}
+        )
+    
+    return item_dict
+
+@router.put("/{event_id}/beverages/{beverage_index}")
+def update_beverage(event_id: str, beverage_index: int, beverage: Beverage, user_id: str = Depends(get_current_user)):
+    """Update a beverage by index"""
+    event_food = ensure_event_food_exists(event_id, user_id)
+    
+    if "beverages" not in event_food or len(event_food["beverages"]) <= beverage_index:
+        raise HTTPException(status_code=404, detail="Beverage not found")
+    
+    beverage_dict = beverage.dict()
+    
+    # Update the specific beverage in the array
+    beverages = event_food["beverages"]
+    beverages[beverage_index] = beverage_dict
+    
+    get_food_collection().update_one(
+        {"event_id": ObjectId(event_id)},
+        {
+            "$set": {
+                "beverages": beverages,
+                "summary.last_updated": datetime.utcnow()
+            }
+        }
+    )
+    
+    return beverage_dict
+
+@router.put("/{event_id}/vendors/{vendor_index}")
+def update_vendor(event_id: str, vendor_index: int, vendor: Vendor, user_id: str = Depends(get_current_user)):
+    """Update a vendor by index"""
+    event_food = ensure_event_food_exists(event_id, user_id)
+    
+    if "vendors" not in event_food or len(event_food["vendors"]) <= vendor_index:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    vendor_dict = vendor.dict()
+    
+    # Update a specific vendor in the array
+    vendors = event_food["vendors"]
+    vendors[vendor_index] = vendor_dict
+    
+    get_food_collection().update_one(
+        {"event_id": ObjectId(event_id)},
+        {"$set": {"vendors": vendors}}
+    )
+    
+    # Update vendor status in summary
+    confirmed_count = sum(1 for v in vendors if v.get("status") == "Confirmed")
+    vendor_status = "All contracts signed" if len(vendors) > 0 and len(vendors) == confirmed_count else "In progress"
+    
+    get_food_collection().update_one(
+        {"event_id": ObjectId(event_id)},
+        {
+            "$set": {
+                "summary.vendor_status": vendor_status,
+                "summary.last_updated": datetime.utcnow()
+            }
+        }
+    )
+    
+    return vendor_dict
