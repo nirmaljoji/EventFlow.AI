@@ -10,7 +10,7 @@ export const mockEvents: Event[] = [
     location: "San Francisco, CA",
     attendees: 10,
     coverImage: "/placeholder.svg?height=128&width=384&text=Tech+Conference",
-    organizer: "EvenFlow.AI",
+    organizer: "EventFlow.AI",
     type: "Conference",
   },
   {

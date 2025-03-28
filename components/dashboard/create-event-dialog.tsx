@@ -20,20 +20,95 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
+import { toast } from "@/components/ui/use-toast"
+import { eventsApi, EventCreateData } from "@/lib/api-client"
 
 interface CreateEventDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onEventCreated?: () => void
 }
 
-export function CreateEventDialog({ open, onOpenChange }: CreateEventDialogProps) {
+export function CreateEventDialog({ open, onOpenChange, onEventCreated }: CreateEventDialogProps) {
   const [startDate, setStartDate] = useState<Date>()
   const [endDate, setEndDate] = useState<Date>()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    title: "",
+    location: "",
+    attendees: "",
+    description: ""
+  })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target
+    setFormData(prev => ({ ...prev, [id]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    onOpenChange(false)
+    
+    if (!startDate) {
+      toast({
+        title: "Error",
+        description: "Please select a start date",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setLoading(true)
+    
+    try {
+      const eventData: EventCreateData = {
+        eventName: formData.title,
+        location: formData.location,
+        dateTime: startDate.toISOString(),
+        attendees: parseInt(formData.attendees) || 0,
+        description: formData.description
+      }
+      
+      // Add endDate if it's set
+      if (endDate) {
+        eventData.endDate = endDate.toISOString()
+      }
+      
+      const response = await eventsApi.createEvent(eventData)
+      
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "Event created successfully"
+        })
+        
+        // Reset form
+        setFormData({
+          title: "",
+          location: "",
+          attendees: "",
+          description: ""
+        })
+        setStartDate(undefined)
+        setEndDate(undefined)
+        
+        // Close dialog
+        onOpenChange(false)
+        
+        // Notify parent component
+        if (onEventCreated) {
+          onEventCreated()
+        }
+      }
+    } catch (error) {
+      console.error("Failed to create event:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create event. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -49,7 +124,13 @@ export function CreateEventDialog({ open, onOpenChange }: CreateEventDialogProps
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Event Title</Label>
-              <Input id="title" placeholder="Annual Conference 2025" required />
+              <Input 
+                id="title" 
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Annual Conference 2025" 
+                required 
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -103,7 +184,13 @@ export function CreateEventDialog({ open, onOpenChange }: CreateEventDialogProps
               <Label htmlFor="location">Location</Label>
               <div className="relative">
                 <MapPinIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input id="location" className="pl-10" placeholder="San Francisco, CA" />
+                <Input 
+                  id="location" 
+                  value={formData.location}
+                  onChange={handleChange}
+                  className="pl-10" 
+                  placeholder="San Francisco, CA" 
+                />
               </div>
             </div>
 
@@ -111,20 +198,35 @@ export function CreateEventDialog({ open, onOpenChange }: CreateEventDialogProps
               <Label htmlFor="attendees">Expected Attendees</Label>
               <div className="relative">
                 <UsersIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input id="attendees" className="pl-10" type="number" placeholder="100" />
+                <Input 
+                  id="attendees" 
+                  value={formData.attendees}
+                  onChange={handleChange}
+                  className="pl-10" 
+                  type="number" 
+                  placeholder="100" 
+                />
               </div>
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea id="description" placeholder="Provide details about your event..." className="min-h-[100px]" />
+              <Textarea 
+                id="description" 
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Provide details about your event..." 
+                className="min-h-[100px]" 
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit">Create Event</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Creating..." : "Create Event"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
