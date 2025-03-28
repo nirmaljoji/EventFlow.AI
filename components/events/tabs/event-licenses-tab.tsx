@@ -575,7 +575,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
 
       {/* Statistics cards */}
       <div className="grid gap-4 md:grid-cols-5">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Licenses</CardTitle>
           </CardHeader>
@@ -590,10 +590,10 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
               </div>
             </div>
           </CardContent>
-          <div className="h-2 w-full bg-primary" />
+          <div className="h-2 w-full bg-primary mt-auto" />
         </Card>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
           </CardHeader>
@@ -614,10 +614,10 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
               </div>
             </div>
           </CardContent>
-          <div className="h-2 w-full bg-green-500" />
+          <div className="h-2 w-full bg-green-500 mt-auto" />
         </Card>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
           </CardHeader>
@@ -638,10 +638,10 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
               </div>
             </div>
           </CardContent>
-          <div className="h-2 w-full bg-yellow-500" />
+          <div className="h-2 w-full bg-yellow-500 mt-auto" />
         </Card>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Missing</CardTitle>
           </CardHeader>
@@ -658,10 +658,10 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
               </div>
             </div>
           </CardContent>
-          <div className="h-2 w-full bg-red-500" />
+          <div className="h-2 w-full bg-red-500 mt-auto" />
         </Card>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
           </CardHeader>
@@ -676,7 +676,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
               </div>
             </div>
           </CardContent>
-          <div className="h-2 w-full bg-blue-500" />
+          <div className="h-2 w-full bg-blue-500 mt-auto" />
         </Card>
       </div>
 
