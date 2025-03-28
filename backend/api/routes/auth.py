@@ -136,3 +136,52 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+# Add a function to check if a token is about to expire
+def is_token_expiring_soon(token: str, min_remaining_minutes: int = 5) -> bool:
+    try:
+        # Decode the token without verifying signature to check expiration
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp_timestamp = payload.get("exp")
+        if not exp_timestamp:
+            return True
+        
+        # Calculate time remaining
+        expiration_time = datetime.fromtimestamp(exp_timestamp)
+        remaining_time = expiration_time - datetime.utcnow()
+        
+        # If less than min_remaining_minutes minutes left, consider it expiring soon
+        return remaining_time < timedelta(minutes=min_remaining_minutes)
+    except:
+        # If there's any error decoding, consider the token invalid/expiring
+        return True
+
+# Add a refresh token endpoint
+@router.post("/refresh-token")
+async def refresh_token(token: str = Depends(oauth2_scheme)):
+    try:
+        # Verify the current token is valid
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        
+        if not username:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+        
+        # Generate a new token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_token = create_access_token(
+            data={"sub": username}, 
+            expires_delta=access_token_expires
+        )
+        
+        return {"access_token": new_token, "token_type": "bearer"}
+    
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token for refresh",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

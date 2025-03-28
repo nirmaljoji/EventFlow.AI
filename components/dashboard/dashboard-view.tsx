@@ -16,6 +16,7 @@ import { EventTimeline } from "./event-timeline"
 import { eventsApi } from "@/lib/api-client"
 import { Event } from "@/lib/types"
 import { toast } from "@/components/ui/use-toast"
+import axios from "axios"
 
 export default function DashboardView() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -52,6 +53,8 @@ export default function DashboardView() {
   const loadDashboardData = async () => {
     setLoading(true)
     try {
+
+      
       const response = await eventsApi.getDashboard()
       console.log("Dashboard response:", response)
       
@@ -119,14 +122,26 @@ export default function DashboardView() {
         })
       }
     } catch (error) {
-      console.error("Failed to load dashboard data:", error)
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data. Please try again.",
-        variant: "destructive"
-      })
+      // If error is 401 Unauthorized, redirect to login (API client will have tried to refresh)
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        // Token refresh failed in the API client, redirect to login
+        console.error("Authentication error:", error);
+        toast({
+          title: "Session Expired",
+          description: "Please log in again",
+          variant: "destructive"
+        });
+        window.location.href = "/login";
+      } else {
+        console.error("Failed to load dashboard data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

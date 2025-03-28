@@ -1,9 +1,27 @@
-import type React from "react"
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
 interface DashboardShellProps {
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
-  return <div className="flex-1 space-y-6 p-6 md:p-8 h-[calc(100vh-4rem)] overflow-y-auto">{children}</div>
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check for token in localStorage instead of using auth context
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.push("/")
+    }
+  }, [router])
+
+  return (
+    <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 gap-8 p-4 md:p-8">
+      <main className="flex flex-1 flex-col gap-4">{children}</main>
+    </div>
+  )
 }
 
