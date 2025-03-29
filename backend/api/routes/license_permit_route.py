@@ -42,6 +42,7 @@ def verify_event_access(event_id: str, user_id: str) -> bool:
     
     events_collection = MongoDB.client.eventflow_db.events
     event = events_collection.find_one({"_id": ObjectId(event_id)})
+    print(event)
     
     if not event:
         return False
@@ -65,13 +66,13 @@ def ensure_event_licenses_permits_exists(event_id: str, user_id: str) -> Dict[st
         default_data = {
             "event_id": ObjectId(event_id),
             "user_id": user_id,
-            "licenses": [],
-            "permits": [],
             "summary": {
                 "license_count": 0,
                 "permit_count": 0,
                 "last_updated": datetime.utcnow()
-            }
+            },
+            "licenses": [],
+            "permits": []
         }
         get_license_permit_collection().insert_one(default_data)
         event_data = get_license_permit_collection().find_one({"event_id": ObjectId(event_id)})

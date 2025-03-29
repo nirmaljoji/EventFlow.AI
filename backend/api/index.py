@@ -7,6 +7,7 @@ from .routes.events import router as events_router
 from .routes.license_permit_route import router as license_permit_router
 from .database.mongodb import MongoDB
 from contextlib import asynccontextmanager
+from .routes.license_permit_route import router as lp_router
 
 
 @asynccontextmanager
