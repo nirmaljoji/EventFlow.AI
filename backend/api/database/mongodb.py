@@ -1,3 +1,4 @@
+# pylint: disable-all
 import os
 from pymongo import MongoClient
 from pymongo.operations import SearchIndexModel

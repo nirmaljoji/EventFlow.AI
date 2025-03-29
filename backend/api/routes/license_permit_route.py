@@ -4,8 +4,8 @@ from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel, Field
 from bson import ObjectId
-from backend.api.database.mongodb import MongoDB
-from backend.api.routes.auth import get_current_user
+from ..database.mongodb import MongoDB
+from ..routes.auth import get_current_user
 
 router = APIRouter()
 
@@ -15,8 +15,8 @@ class License(BaseModel):
     name: str
     type: str
     issued_by: str
-    issue_date: datetime
-    expiry_date: datetime
+    issue_date: str
+    expiry_date: str
     status: str
 
 class Permit(BaseModel):
@@ -24,8 +24,8 @@ class Permit(BaseModel):
     name: str
     type: str
     issued_by: str
-    issue_date: datetime
-    expiry_date: datetime
+    issue_date: str
+    expiry_date: str
     status: str
 
 # Helper function to access the collection
