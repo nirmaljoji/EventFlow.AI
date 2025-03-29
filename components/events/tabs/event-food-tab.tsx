@@ -66,7 +66,9 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
   const [foodData, setFoodData] = useState<EventFoodData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const event_id = localStorage.getItem("event_id")
+  
+  // Get event_id from event prop
+  const event_id = event.id
   
   // Dialog states
   const [menuItemDialogOpen, setMenuItemDialogOpen] = useState(false)
@@ -123,7 +125,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
 
-      const response = await fetch(`${apiUrl}/api/events/${event_id}/food-summary`, {
+      const response = await fetch(`${apiUrl}/api/events/${event_id}/food-data`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -137,56 +139,8 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Failed to fetch food data")
       }
 
-      const summaryData = await response.json()
-      
-      // Fetch menu items
-      const menuResponse = await fetch(`${apiUrl}/api/events/${event_id}/menu-items`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      })
-      
-      if (!menuResponse.ok) {
-        throw new Error("Failed to fetch menu items")
-      }
-      
-      const menuItems = await menuResponse.json()
-      
-      // Fetch beverages
-      const beverageResponse = await fetch(`${apiUrl}/api/events/${event_id}/beverages`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      })
-      
-      if (!beverageResponse.ok) {
-        throw new Error("Failed to fetch beverages")
-      }
-      
-      const beverages = await beverageResponse.json()
-      
-      // Fetch vendors
-      const vendorResponse = await fetch(`${apiUrl}/api/events/${event_id}/vendors`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      })
-      
-      if (!vendorResponse.ok) {
-        throw new Error("Failed to fetch vendors")
-      }
-      
-      const vendors = await vendorResponse.json()
-
-      setFoodData({
-        summary: summaryData,
-        menu_items: menuItems,
-        beverages: beverages,
-        vendors: vendors
-      })
+      const data = await response.json()
+      setFoodData(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred")
       toast({
@@ -282,7 +236,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     setEditingVendorIndex(null)
   }
 
-  // CRUD operations for menu items
+  // Function to handle adding menu item
   const handleAddMenuItem = async () => {
     try {
       const token = getToken()
@@ -291,7 +245,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      if (isEditingMenuItem && editingMenuItemIndex !== null) {
+      if (isEditingMenuItem && editingMenuItemIndex !== null && foodData) {
         // Update existing menu item
         const response = await fetch(`${apiUrl}/api/events/${event_id}/menu-items/${editingMenuItemIndex}`, {
           method: 'PUT',
@@ -306,11 +260,21 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to update menu item")
         }
         
+        const updatedItem = await response.json()
+        
+        // Update local state
+        const updatedMenuItems = [...foodData.menu_items]
+        updatedMenuItems[editingMenuItemIndex] = updatedItem
+        setFoodData({
+          ...foodData,
+          menu_items: updatedMenuItems
+        })
+        
         toast({
           title: "Success",
           description: "Menu item updated successfully"
         })
-      } else {
+      } else if (foodData) {
         // Add new menu item
         const response = await fetch(`${apiUrl}/api/events/${event_id}/menu-items`, {
           method: 'POST',
@@ -325,14 +289,24 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to add menu item")
         }
         
+        const addedItem = await response.json()
+        
+        // Update local state
+        setFoodData({
+          ...foodData,
+          menu_items: [...foodData.menu_items, addedItem],
+          summary: {
+            ...foodData.summary,
+            menu_item_count: foodData.summary.menu_item_count + 1,
+            dietary_options_count: foodData.summary.dietary_options_count + (newMenuItem.dietary !== "None" ? 1 : 0)
+          }
+        })
+        
         toast({
           title: "Success",
           description: "Menu item added successfully"
         })
       }
-      
-      // Refresh data
-      fetchFoodData()
       
       // Reset form and close dialog
       resetMenuItemForm()
@@ -351,7 +325,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     try {
       const token = getToken()
       
-      if (!token) {
+      if (!token || !foodData) {
         throw new Error("Authentication token not found")
       }
       
@@ -367,8 +341,18 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Failed to delete menu item")
       }
       
-      // Refresh data
-      fetchFoodData()
+      // Update local state
+      const deletedItem = foodData.menu_items[index]
+      const updatedMenuItems = foodData.menu_items.filter((_, i) => i !== index)
+      setFoodData({
+        ...foodData,
+        menu_items: updatedMenuItems,
+        summary: {
+          ...foodData.summary,
+          menu_item_count: foodData.summary.menu_item_count - 1,
+          dietary_options_count: foodData.summary.dietary_options_count - (deletedItem.dietary !== "None" ? 1 : 0)
+        }
+      })
       
       toast({
         title: "Success",
@@ -383,7 +367,6 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     }
   }
 
-  // CRUD operations for beverages
   const handleAddBeverage = async () => {
     try {
       const token = getToken()
@@ -392,7 +375,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      if (isEditingBeverage && editingBeverageIndex !== null) {
+      if (isEditingBeverage && editingBeverageIndex !== null && foodData) {
         // Update existing beverage
         const response = await fetch(`${apiUrl}/api/events/${event_id}/beverages/${editingBeverageIndex}`, {
           method: 'PUT',
@@ -407,11 +390,21 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to update beverage")
         }
         
+        const updatedBeverage = await response.json()
+        
+        // Update local state
+        const updatedBeverages = [...foodData.beverages]
+        updatedBeverages[editingBeverageIndex] = updatedBeverage
+        setFoodData({
+          ...foodData,
+          beverages: updatedBeverages
+        })
+        
         toast({
           title: "Success",
           description: "Beverage updated successfully"
         })
-      } else {
+      } else if (foodData) {
         // Add new beverage
         const response = await fetch(`${apiUrl}/api/events/${event_id}/beverages`, {
           method: 'POST',
@@ -426,14 +419,19 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to add beverage")
         }
         
+        const addedBeverage = await response.json()
+        
+        // Update local state
+        setFoodData({
+          ...foodData,
+          beverages: [...foodData.beverages, addedBeverage]
+        })
+        
         toast({
           title: "Success",
           description: "Beverage added successfully"
         })
       }
-      
-      // Refresh data
-      fetchFoodData()
       
       // Reset form and close dialog
       resetBeverageForm()
@@ -452,7 +450,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     try {
       const token = getToken()
       
-      if (!token) {
+      if (!token || !foodData) {
         throw new Error("Authentication token not found")
       }
       
@@ -468,8 +466,11 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Failed to delete beverage")
       }
       
-      // Refresh data
-      fetchFoodData()
+      // Update local state
+      setFoodData({
+        ...foodData,
+        beverages: foodData.beverages.filter((_, i) => i !== index)
+      })
       
       toast({
         title: "Success",
@@ -484,7 +485,6 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     }
   }
 
-  // CRUD operations for vendors
   const handleAddVendor = async () => {
     try {
       const token = getToken()
@@ -493,7 +493,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Authentication token not found")
       }
       
-      if (isEditingVendor && editingVendorIndex !== null) {
+      if (isEditingVendor && editingVendorIndex !== null && foodData) {
         // Update existing vendor
         const response = await fetch(`${apiUrl}/api/events/${event_id}/vendors/${editingVendorIndex}`, {
           method: 'PUT',
@@ -508,11 +508,25 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to update vendor")
         }
         
+        const updatedVendor = await response.json()
+        
+        // Update local state
+        const updatedVendors = [...foodData.vendors]
+        updatedVendors[editingVendorIndex] = updatedVendor
+        setFoodData({
+          ...foodData,
+          vendors: updatedVendors,
+          summary: {
+            ...foodData.summary,
+            vendor_status: updatedVendors.every(v => v.status === "Confirmed") ? "All contracts signed" : "In progress"
+          }
+        })
+        
         toast({
           title: "Success",
           description: "Vendor updated successfully"
         })
-      } else {
+      } else if (foodData) {
         // Add new vendor
         const response = await fetch(`${apiUrl}/api/events/${event_id}/vendors`, {
           method: 'POST',
@@ -527,14 +541,24 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
           throw new Error("Failed to add vendor")
         }
         
+        const addedVendor = await response.json()
+        
+        // Update local state
+        setFoodData({
+          ...foodData,
+          vendors: [...foodData.vendors, addedVendor],
+          summary: {
+            ...foodData.summary,
+            vendor_count: foodData.summary.vendor_count + 1,
+            vendor_status: "In progress"
+          }
+        })
+        
         toast({
           title: "Success",
           description: "Vendor added successfully"
         })
       }
-      
-      // Refresh data
-      fetchFoodData()
       
       // Reset form and close dialog
       resetVendorForm()
@@ -553,7 +577,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     try {
       const token = getToken()
       
-      if (!token) {
+      if (!token || !foodData) {
         throw new Error("Authentication token not found")
       }
       
@@ -569,8 +593,18 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         throw new Error("Failed to delete vendor")
       }
       
-      // Refresh data
-      fetchFoodData()
+      // Update local state
+      const updatedVendors = foodData.vendors.filter((_, i) => i !== index)
+      setFoodData({
+        ...foodData,
+        vendors: updatedVendors,
+        summary: {
+          ...foodData.summary,
+          vendor_count: foodData.summary.vendor_count - 1,
+          vendor_status: updatedVendors.length === 0 ? "Not started" : 
+                        updatedVendors.every(v => v.status === "Confirmed") ? "All contracts signed" : "In progress"
+        }
+      })
       
       toast({
         title: "Success",
