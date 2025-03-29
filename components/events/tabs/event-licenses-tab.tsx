@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   FileCheck,
   FileClock,
@@ -68,235 +68,73 @@ type License = {
   notes?: string
 }
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export function EventLicensesTab({ event }: EventLicensesTabProps) {
-  // Mock licenses data
-  const licenses: License[] = [
-    {
-      id: "venue-permit",
-      name: "Venue Permit",
-      type: "Venue",
-      description: "Official authorization to use the venue for your event. Required for all public gatherings.",
-      status: "approved",
-      dueDate: "2025-02-15",
-      issuingAuthority: "City Planning Department",
-      applicationDate: "2025-01-10",
-      approvalDate: "2025-01-25",
-      cost: 350,
-      icon: Building,
-      requiredFields: [
-        { name: "Applicant Name", type: "text", required: true },
-        { name: "Business Name", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Venue Address", type: "textarea", required: true },
-        { name: "Event Date", type: "date", required: true },
-        { name: "Expected Attendance", type: "number", required: true },
-        { name: "Event Description", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Floor Plan", uploaded: true, url: "#" },
-        { name: "Insurance Certificate", uploaded: true, url: "#" },
-        { name: "Business License", uploaded: true, url: "#" },
-      ],
-      notes: "Approved with condition to maintain noise levels below city ordinance limits after 10 PM.",
-    },
-    {
-      id: "alcohol-license",
-      name: "Alcohol License",
-      type: "Food & Beverage",
-      description: "Temporary permit to serve alcoholic beverages at your event.",
-      status: "approved",
-      dueDate: "2025-02-20",
-      issuingAuthority: "State Liquor Control Board",
-      applicationDate: "2025-01-15",
-      approvalDate: "2025-02-05",
-      cost: 500,
-      icon: Utensils,
-      requiredFields: [
-        { name: "Business Name", type: "text", required: true },
-        { name: "License Holder Name", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Event Address", type: "textarea", required: true },
-        { name: "Service Start Date", type: "date", required: true },
-        { name: "Service End Date", type: "date", required: true },
-        { name: "Types of Alcohol", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Business License", uploaded: true, url: "#" },
-        { name: "Responsible Server Certificates", uploaded: true, url: "#" },
-        { name: "Site Plan", uploaded: true, url: "#" },
-      ],
-    },
-    {
-      id: "food-permit",
-      name: "Food Service Permit",
-      type: "Food & Beverage",
-      description: "Health department authorization for serving food at your event.",
-      status: "pending",
-      dueDate: "2025-02-25",
-      issuingAuthority: "County Health Department",
-      applicationDate: "2025-02-01",
-      cost: 250,
-      icon: Utensils,
-      requiredFields: [
-        { name: "Business Name", type: "text", required: true },
-        { name: "Contact Person", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Event Address", type: "textarea", required: true },
-        { name: "Service Date(s)", type: "date", required: true },
-        { name: "Number of Food Handlers", type: "number", required: true },
-        { name: "Types of Food", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Food Handler Certificates", uploaded: true, url: "#" },
-        { name: "Menu Items", uploaded: true, url: "#" },
-        { name: "Food Source Documentation", uploaded: false },
-      ],
-    },
-    {
-      id: "fire-safety",
-      name: "Fire Safety Inspection",
-      type: "Safety",
-      description: "Mandatory fire department inspection for event safety compliance.",
-      status: "pending",
-      dueDate: "2025-03-01",
-      issuingAuthority: "City Fire Department",
-      applicationDate: "2025-02-05",
-      cost: 200,
-      icon: ShieldCheck,
-      requiredFields: [
-        { name: "Venue Name", type: "text", required: true },
-        { name: "Contact Person", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Venue Address", type: "textarea", required: true },
-        { name: "Inspection Date", type: "date", required: true },
-        { name: "Venue Capacity", type: "number", required: true },
-        {
-          name: "Special Effects/Pyrotechnics",
-          type: "textarea",
-          required: false,
-          description: "Describe any special effects or pyrotechnics planned for the event",
-        },
-      ],
-      documents: [
-        { name: "Floor Plan", uploaded: true, url: "#" },
-        { name: "Exit Plan", uploaded: true, url: "#" },
-        { name: "Equipment List", uploaded: false },
-      ],
-    },
-    {
-      id: "noise-permit",
-      name: "Noise Permit",
-      type: "Entertainment",
-      description: "Permission to exceed normal noise regulations during your event.",
-      status: "missing",
-      dueDate: "2025-03-05",
-      issuingAuthority: "City Environmental Services",
-      cost: 150,
-      icon: Music,
-      requiredFields: [
-        { name: "Applicant Name", type: "text", required: true },
-        { name: "Organization", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Event Location", type: "textarea", required: true },
-        { name: "Event Date", type: "date", required: true },
-        { name: "Start Time", type: "text", required: true },
-        { name: "End Time", type: "text", required: true },
-        { name: "Sound Equipment Details", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Site Plan", uploaded: false },
-        { name: "Equipment Specifications", uploaded: false },
-      ],
-    },
-    {
-      id: "public-assembly",
-      name: "Public Assembly Permit",
-      type: "Safety",
-      description: "Required for events with large gatherings in public spaces.",
-      status: "missing",
-      dueDate: "2025-03-10",
-      issuingAuthority: "City Public Safety Department",
-      cost: 300,
-      icon: Users,
-      requiredFields: [
-        { name: "Organizer Name", type: "text", required: true },
-        { name: "Organization", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Assembly Location", type: "textarea", required: true },
-        { name: "Event Date", type: "date", required: true },
-        { name: "Expected Attendance", type: "number", required: true },
-        { name: "Security Plan", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Site Plan", uploaded: false },
-        { name: "Security Contract", uploaded: false },
-        { name: "Insurance Certificate", uploaded: false },
-      ],
-    },
-    {
-      id: "parking-permit",
-      name: "Special Parking Permit",
-      type: "Logistics",
-      description: "Authorization for reserved or special parking arrangements.",
-      status: "rejected",
-      dueDate: "2025-02-28",
-      issuingAuthority: "City Transportation Department",
-      applicationDate: "2025-02-10",
-      rejectionReason:
-        "Insufficient information provided about traffic management plan. Please resubmit with detailed traffic flow diagrams.",
-      cost: 175,
-      icon: Truck,
-      requiredFields: [
-        { name: "Applicant Name", type: "text", required: true },
-        { name: "Organization", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Parking Location", type: "textarea", required: true },
-        { name: "Event Date", type: "date", required: true },
-        { name: "Number of Spaces", type: "number", required: true },
-        { name: "Hours Needed", type: "text", required: true },
-        { name: "Traffic Management Plan", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Site Map", uploaded: true, url: "#" },
-        { name: "Traffic Flow Diagram", uploaded: false },
-      ],
-    },
-    {
-      id: "tent-permit",
-      name: "Temporary Structure Permit",
-      type: "Venue",
-      description: "Required for setting up tents, stages, or other temporary structures.",
-      status: "approved",
-      dueDate: "2025-02-18",
-      issuingAuthority: "City Building Department",
-      applicationDate: "2025-01-25",
-      approvalDate: "2025-02-10",
-      cost: 225,
-      icon: Tent,
-      requiredFields: [
-        { name: "Applicant Name", type: "text", required: true },
-        { name: "Organization", type: "text", required: true },
-        { name: "Contact Email", type: "email", required: true },
-        { name: "Contact Phone", type: "tel", required: true },
-        { name: "Installation Location", type: "textarea", required: true },
-        { name: "Installation Date", type: "date", required: true },
-        { name: "Removal Date", type: "date", required: true },
-        { name: "Structure Dimensions", type: "textarea", required: true },
-      ],
-      documents: [
-        { name: "Structural Plans", uploaded: true, url: "#" },
-        { name: "Fire Retardant Certification", uploaded: true, url: "#" },
-        { name: "Insurance Certificate", uploaded: true, url: "#" },
-      ],
-    },
-  ]
+  const [licenses, setLicenses] = useState<License[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch licenses from backend
+  useEffect(() => {
+    const fetchLicenses = async () => {
+      try {
+        setLoading(true)
+        // Get token from localStorage
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('No authentication token found')
+        }
+
+        const response = await fetch(`${apiUrl}/api/events/${event.id}/licenses`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        if (!response.ok) {
+          throw new Error('Failed to fetch licenses')
+        }
+        const data = await response.json()
+        
+        // Map backend data to frontend License type with icons
+        const processedLicenses = data.licenses.map((license: any) => ({
+          ...license,
+          icon: getIconForLicenseType(license.type)
+        }))
+        
+        setLicenses(processedLicenses)
+        setError(null)
+      } catch (err) {
+        setError('Failed to load licenses')
+        console.error('Error fetching licenses:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (event.id) {
+      fetchLicenses()
+    }
+  }, [event.id])
+
+  // Helper function to get icon based on license type
+  const getIconForLicenseType = (type: string): React.ElementType => {
+    switch (type) {
+      case "Venue":
+        return Building
+      case "Food & Beverage":
+        return Utensils
+      case "Safety":
+        return ShieldCheck
+      case "Entertainment":
+        return Music
+      case "Logistics":
+        return Truck
+      default:
+        return FileCheck
+    }
+  }
 
   // State for expanded license
   const [expandedLicense, setExpandedLicense] = useState<string | null>(null)
@@ -328,6 +166,37 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
   const pendingLicenses = filteredLicenses.filter((license) => license.status === "pending")
   const missingLicenses = filteredLicenses.filter((license) => license.status === "missing")
   const rejectedLicenses = filteredLicenses.filter((license) => license.status === "rejected")
+
+  // Calculate total cost
+  const totalCost = licenses.reduce((sum, license) => sum + license.cost, 0)
+  const paidCost = approvedLicenses.reduce((sum, license) => sum + license.cost, 0)
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex h-[400px] items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading licenses...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex h-[400px] items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-8 w-8 text-destructive mx-auto" />
+          <p className="mt-4 text-destructive">{error}</p>
+          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   // Get status badge
   const getStatusBadge = (status: "approved" | "pending" | "missing" | "rejected") => {
@@ -362,10 +231,6 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
         )
     }
   }
-
-  // Calculate total cost
-  const totalCost = licenses.reduce((sum, license) => sum + license.cost, 0)
-  const paidCost = approvedLicenses.reduce((sum, license) => sum + license.cost, 0)
 
   // License card component
   const LicenseCard = ({ license }: { license: License }) => {
