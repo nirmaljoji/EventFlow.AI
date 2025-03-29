@@ -3,9 +3,9 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional, Union
-from ..database.mongodb import MongoDB
+from api.database.mongodb import MongoDB
 from bson import ObjectId
-from .auth import get_current_user
+from api.routes.auth import get_current_user
 
 # Initialize router
 router = APIRouter()
@@ -108,6 +108,13 @@ def create_license(license: LicenseCreate, user_id: str = Depends(get_current_us
             detail=f"Failed to create license: {str(e)}"
         )
 
+# Create a new license for an event
+@router.post("/{event_id}/licenses", response_model=dict[str, Union[bool, LicenseResponse]])
+def create_event_license(event_id: str, license: LicenseCreate, user_id: str = Depends(get_current_user)):
+    # Set the event ID in the license data
+    license.eventId = event_id
+    return create_license(license, user_id)
+
 # Get all licenses for an event
 @router.get("/{event_id}/licenses", response_model=dict[str, Union[bool, List[LicenseResponse]]])
 def get_event_licenses(event_id: str, user_id: str = Depends(get_current_user)):
@@ -163,6 +170,65 @@ def update_license(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="License not found or you don't have permission to update it"
+            )
+        
+        # Update the license
+        update_data = license_data.dict()
+        update_data["updatedAt"] = datetime.now()
+        
+        db.licenses.update_one(
+            {"_id": ObjectId(license_id)},
+            {"$set": update_data}
+        )
+        
+        # Get updated license
+        updated_license = db.licenses.find_one({"_id": ObjectId(license_id)})
+        
+        return {
+            "success": True,
+            "license": serialize_license(updated_license)
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update license: {str(e)}"
+        )
+
+# Update a license by event_id
+@router.put("/{event_id}/licenses/{license_id}", response_model=dict[str, Union[bool, LicenseResponse]])
+def update_event_license(
+    event_id: str,
+    license_id: str,
+    license_data: LicenseCreate,
+    user_id: str = Depends(get_current_user)
+):
+    try:
+        db = MongoDB.get_db()
+        
+        # Verify event exists and belongs to user
+        event = db.events.find_one({
+            "_id": ObjectId(event_id),
+            "userId": user_id
+        })
+        
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Event not found or you don't have permission to update its licenses"
+            )
+        
+        # Check if license exists and belongs to the event
+        existing_license = db.licenses.find_one({
+            "_id": ObjectId(license_id),
+            "eventId": event_id,
+            "userId": user_id
+        })
+        
+        if not existing_license:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="License not found or it doesn't belong to the specified event"
             )
         
         # Update the license
