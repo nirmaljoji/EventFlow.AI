@@ -113,11 +113,12 @@ def create_event(event: EventCreate, user_id: str = Depends(get_current_user)):
 def get_user_events(user_id: str = Depends(get_current_user)):
     try:
         db = MongoDB.get_db()
+        current_date = datetime.now()
         
         # Find all events for this user and sort them by creation date
         user_events = list(db.events.find(
-            {"userId": user_id},  # Use user_id directly, not as a dictionary key
-            sort=[("createdAt", -1)]  # Sort by creation date, newest first
+            {"userId": user_id},
+            sort=[("createdAt", -1)]
         ))
         
         # If no events found, return an empty list
@@ -127,12 +128,21 @@ def get_user_events(user_id: str = Depends(get_current_user)):
                 "events": []
             }
         
-        # Serialize each event in the list
-        serialized_events = [serialize_event(event) for event in user_events]
+        # Process and serialize each event
+        processed_events = []
+        for event in user_events:
+            event = process_event_dates(event)
+            serialized = serialize_event(event)
+            
+            # Add type if not present
+            if "type" not in serialized:
+                serialized["type"] = "Conference"  # Default type
+                
+            processed_events.append(serialized)
             
         return {
             "success": True,
-            "events": serialized_events
+            "events": processed_events
         }
         
     except Exception as e:
@@ -276,4 +286,41 @@ def get_dashboard_data(user_id: str = Depends(get_current_user)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve dashboard data: {str(e)}"
+        )
+
+# Get a single event by ID
+@router.get("/{event_id}", response_model=dict)
+def get_event(event_id: str, user_id: str = Depends(get_current_user)):
+    try:
+        db = MongoDB.get_db()
+        
+        # Find event by ID and user
+        event = db.events.find_one({
+            "_id": ObjectId(event_id),
+            "userId": user_id
+        })
+        
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Event not found"
+            )
+        
+        # Process and serialize event
+        event = process_event_dates(event)
+        serialized = serialize_event(event)
+        
+        # Add type if not present
+        if "type" not in serialized:
+            serialized["type"] = "Conference"
+            
+        return {
+            "success": True,
+            "event": serialized
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve event: {str(e)}"
         )

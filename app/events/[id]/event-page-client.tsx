@@ -1,18 +1,52 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AiChatPanel } from "@/components/ai-chat/chat-sidebar/ai-chat-panel"
 import EventDetails from "@/components/events/event-details"
+import { eventsApi } from "@/lib/api-client"
 
 interface EventPageClientProps {
-  event: any // Replace with your event type
+  eventId: string
 }
 
-export default function EventPageClient({ event }: EventPageClientProps) {
+export default function EventPageClient({ eventId }: EventPageClientProps) {
   const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [event, setEvent] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const response = await eventsApi.getEvent(eventId)
+        if (response.success) {
+          // Transform the event data to match the expected format
+          const eventData = {
+            ...response.event,
+            title: response.event.eventName,
+            startDate: response.event.dateTime,
+          }
+          setEvent(eventData)
+        }
+      } catch (error) {
+        console.error("Failed to fetch event:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchEvent()
+  }, [eventId])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (!event) {
+    return <div>Event not found</div>
+  }
 
   return (
     <div className="relative h-[calc(100vh-4rem)] overflow-hidden pt-0">

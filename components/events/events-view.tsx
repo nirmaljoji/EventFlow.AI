@@ -28,11 +28,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { mockEvents } from "@/lib/mock-data"
+import { eventsApi } from "@/lib/api-client"
 import { EventCard } from "@/components/events/event-card"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { CreateEventDialog } from "@/components/dashboard/create-event-dialog"
+
+interface Event {
+  id: string
+  eventName: string
+  location: string
+  dateTime: string
+  endDate: string
+  attendees: number
+  description: string
+  type?: string
+}
 
 export default function EventsView() {
   const router = useRouter()
@@ -43,13 +54,34 @@ export default function EventsView() {
   const [filter, setFilter] = useState(searchParams?.get("filter") || "all")
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selectedLocations, setSelectedLocations] = useState<string[]>([])
+  const [events, setEvents] = useState<Event[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Fetch events from backend
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true)
+        const response = await eventsApi.getEvents()
+        if (response.success) {
+          setEvents(response.events)
+        }
+      } catch (error) {
+        console.error("Failed to fetch events:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
 
   // Get unique event types and locations for filters
-  const eventTypes = Array.from(new Set(mockEvents.map((event) => event.type || "Conference")))
+  const eventTypes = Array.from(new Set(events.map((event) => event.type || "Conference")))
 
   const eventLocations = Array.from(
     new Set(
-      mockEvents.map((event) => {
+      events.map((event) => {
         const city = event.location.split(",")[0].trim()
         return city
       }),
@@ -57,10 +89,10 @@ export default function EventsView() {
   )
 
   // Filter events based on search query, status filter, and dropdown filters
-  const filteredEvents = mockEvents.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     // Search filter
     const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       false
@@ -68,16 +100,20 @@ export default function EventsView() {
     if (!matchesSearch) return false
 
     // Status filter
+    const currentDate = new Date()
+    const startDate = new Date(event.dateTime)
+    const endDate = new Date(event.endDate)
+
     if (filter === "ongoing") {
-      if (!(new Date(event.startDate) <= new Date() && new Date(event.endDate) >= new Date())) {
+      if (!(startDate <= currentDate && endDate >= currentDate)) {
         return false
       }
     } else if (filter === "upcoming") {
-      if (!(new Date(event.startDate) > new Date())) {
+      if (!(startDate > currentDate)) {
         return false
       }
     } else if (filter === "past") {
-      if (!(new Date(event.endDate) < new Date())) {
+      if (!(endDate < currentDate)) {
         return false
       }
     }
@@ -278,14 +314,23 @@ export default function EventsView() {
               <div className={`grid gap-4 ${viewMode === "grid" ? "md:grid-cols-2 lg:grid-cols-3" : ""}`}>
                 {filteredEvents.map((event) => {
                   const status =
-                    new Date(event.startDate) <= new Date() && new Date(event.endDate) >= new Date()
+                    new Date(event.dateTime) <= new Date() && new Date(event.endDate) >= new Date()
                       ? "ongoing"
-                      : new Date(event.startDate) > new Date()
+                      : new Date(event.dateTime) > new Date()
                         ? "upcoming"
                         : "past"
 
                   return viewMode === "grid" ? (
-                    <EventCard key={event.id} event={event} status={status} />
+                    <EventCard 
+                      key={event.id} 
+                      event={{
+                        ...event,
+                        title: event.eventName,
+                        startDate: event.dateTime,
+                        organizer: "You" // Default organizer
+                      }} 
+                      status={status} 
+                    />
                   ) : (
                     <EventListItem key={event.id} event={event} status={status} />
                   )
@@ -343,7 +388,7 @@ function EventListItem({ event, status }: { event: any; status: "ongoing" | "upc
         <CardContent className="flex flex-1 flex-col justify-between p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{event.title}</h3>
+              <h3 className="font-semibold">{event.eventName}</h3>
               {getStatusBadge()}
             </div>
 
@@ -351,7 +396,7 @@ function EventListItem({ event, status }: { event: any; status: "ongoing" | "upc
               <div className="flex items-center">
                 <Calendar className="mr-1 h-4 w-4" />
                 <span>
-                  {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                  {new Date(event.dateTime).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
                 </span>
               </div>
 

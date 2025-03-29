@@ -86,7 +86,7 @@ apiClient.interceptors.response.use(
       } else {
         // If refresh failed, redirect to login or clear auth state
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }
     
@@ -113,6 +113,11 @@ export const eventsApi = {
   
   getEvents: async () => {
     const response = await apiClient.get("/events/user");
+    return response.data;
+  },
+  
+  getEvent: async (eventId: string) => {
+    const response = await apiClient.get(`/events/${eventId}`);
     return response.data;
   },
   
