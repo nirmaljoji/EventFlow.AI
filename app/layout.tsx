@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { CopilotKit } from "@copilotkit/react-core"
+import "@/styles/copilot-sidebar.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,7 +23,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-          {children}
+          <CopilotKit 
+            runtimeUrl="/api/copilotkit"
+            agent="sample_agent" 
+          >
+            {children}
+          </CopilotKit>
         </ThemeProvider>
       </body>
     </html>
