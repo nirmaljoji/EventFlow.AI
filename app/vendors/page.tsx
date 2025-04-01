@@ -7,6 +7,10 @@ export const metadata: Metadata = {
 }
 
 export default function VendorsPage() {
-  return <VendorsView />
+  return <div className="relative h-[calc(100vh-4rem)] overflow-auto">
+  <VendorsView />
+            </div>
 }
+
+
 

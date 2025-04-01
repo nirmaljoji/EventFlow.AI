@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, Grid3X3, List, SlidersHorizontal, Plus, Star } from "lucide-react"
+import { Search, Filter, Grid3X3, List, SlidersHorizontal, Plus, Star, MapPin } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,6 +11,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -89,7 +91,7 @@ export default function VendorsView() {
         </DashboardHeader>
 
         {/* Search and filters section */}
-        <Card className="overflow-hidden border-none shadow-sm">
+        <Card className="border-none shadow-sm">
           <CardContent className="p-6">
             <div className="flex flex-col gap-4">
               <div className="relative">
@@ -102,123 +104,144 @@ export default function VendorsView() {
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <Tabs
-                  defaultValue="all"
-                  value={activeCategory}
-                  onValueChange={setActiveCategory}
-                  className="w-full sm:w-auto"
-                >
-                  <TabsList className="w-full sm:w-auto grid grid-cols-4 sm:flex overflow-auto">
-                    <TabsTrigger value="all">All Categories</TabsTrigger>
-                    {categories.map((category) => (
-                      <TabsTrigger key={category} value={category}>
-                        {category}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <Tabs
+                    defaultValue="all"
+                    value={activeCategory}
+                    onValueChange={setActiveCategory}
+                    className="flex-1"
+                  >
+                    <TabsList className="w-full justify-start overflow-x-auto">
+                      <TabsTrigger value="all" className="shrink-0">All</TabsTrigger>
+                      {categories.slice(0, 3).map((category) => (
+                        <TabsTrigger key={category} value={category} className="shrink-0">
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                      {categories.length > 3 && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-9 shrink-0">
+                              More <span className="ml-1">▾</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            {categories.slice(3).map((category) => (
+                              <DropdownMenuItem
+                                key={category}
+                                onClick={() => setActiveCategory(category)}
+                              >
+                                {category}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TabsList>
+                  </Tabs>
 
-                <div className="flex gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="gap-1">
-                        <Filter className="h-4 w-4" />
-                        Filters
+                  <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <Filter className="h-4 w-4" />
+                          Filters
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>Price Range</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {["$", "$$", "$$$", "$$$$"].map((price) => (
+                          <DropdownMenuCheckboxItem
+                            key={price}
+                            checked={selectedPriceRanges.includes(price)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedPriceRanges([...selectedPriceRanges, price])
+                              } else {
+                                setSelectedPriceRanges(selectedPriceRanges.filter((p) => p !== price))
+                              }
+                            }}
+                          >
+                            {price}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuLabel>Rating</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <DropdownMenuCheckboxItem
+                            key={rating}
+                            checked={selectedRatings.includes(rating)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedRatings([...selectedRatings, rating])
+                              } else {
+                                setSelectedRatings(selectedRatings.filter((r) => r !== rating))
+                              }
+                            }}
+                          >
+                            {rating}+ <Star className="inline-block h-3 w-3 ml-1" />
+                          </DropdownMenuCheckboxItem>
+                        ))}
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuLabel>Location</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {locations.map((location) => (
+                          <DropdownMenuCheckboxItem
+                            key={location}
+                            checked={selectedLocations.includes(location)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedLocations([...selectedLocations, location])
+                              } else {
+                                setSelectedLocations(selectedLocations.filter((l) => l !== location))
+                              }
+                            }}
+                          >
+                            {location}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <SlidersHorizontal className="h-4 w-4" />
+                          Sort
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuCheckboxItem checked>Name (A-Z)</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem>Name (Z-A)</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem>Rating (High-Low)</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem>Price (Low-High)</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem>Price (High-Low)</DropdownMenuCheckboxItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <div className="flex border rounded-md divide-x">
+                      <Button
+                        variant={viewMode === "grid" ? "default" : "ghost"}
+                        size="sm"
+                        className="rounded-r-none h-9 w-9"
+                        onClick={() => setViewMode("grid")}
+                      >
+                        <Grid3X3 className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                      <DropdownMenuLabel>Price Range</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {["$", "$$", "$$$", "$$$$"].map((price) => (
-                        <DropdownMenuCheckboxItem
-                          key={price}
-                          checked={selectedPriceRanges.includes(price)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedPriceRanges([...selectedPriceRanges, price])
-                            } else {
-                              setSelectedPriceRanges(selectedPriceRanges.filter((p) => p !== price))
-                            }
-                          }}
-                        >
-                          {price}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>Rating</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {[5, 4, 3, 2, 1].map((rating) => (
-                        <DropdownMenuCheckboxItem
-                          key={rating}
-                          checked={selectedRatings.includes(rating)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedRatings([...selectedRatings, rating])
-                            } else {
-                              setSelectedRatings(selectedRatings.filter((r) => r !== rating))
-                            }
-                          }}
-                        >
-                          {rating}+ <Star className="inline-block h-3 w-3 ml-1" />
-                        </DropdownMenuCheckboxItem>
-                      ))}
-
-                      <DropdownMenuSeparator />
-                      <DropdownMenuLabel>Location</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {locations.map((location) => (
-                        <DropdownMenuCheckboxItem
-                          key={location}
-                          checked={selectedLocations.includes(location)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedLocations([...selectedLocations, location])
-                            } else {
-                              setSelectedLocations(selectedLocations.filter((l) => l !== location))
-                            }
-                          }}
-                        >
-                          {location}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="gap-1">
-                        <SlidersHorizontal className="h-4 w-4" />
-                        Sort
+                      <Button
+                        variant={viewMode === "list" ? "default" : "ghost"}
+                        size="sm"
+                        className="rounded-l-none h-9 w-9"
+                        onClick={() => setViewMode("list")}
+                      >
+                        <List className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuCheckboxItem checked>Name (A-Z)</DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>Name (Z-A)</DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>Rating (High-Low)</DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>Price (Low-High)</DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>Price (High-Low)</DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <div className="flex border rounded-md overflow-hidden">
-                    <Button
-                      variant={viewMode === "grid" ? "default" : "ghost"}
-                      size="icon"
-                      className="rounded-none h-10 w-10"
-                      onClick={() => setViewMode("grid")}
-                    >
-                      <Grid3X3 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === "list" ? "default" : "ghost"}
-                      size="icon"
-                      className="rounded-none h-10 w-10"
-                      onClick={() => setViewMode("list")}
-                    >
-                      <List className="h-4 w-4" />
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -228,32 +251,53 @@ export default function VendorsView() {
 
         {/* Results section */}
         <div className="mt-2">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {filteredVendors.length} vendors
-              {activeCategory !== "all" && ` in ${activeCategory}`}
-              {selectedPriceRanges.length > 0 && ` • ${selectedPriceRanges.length} price ranges`}
-              {selectedRatings.length > 0 && ` • ${selectedRatings.length} ratings`}
-              {selectedLocations.length > 0 && ` • ${selectedLocations.length} locations`}
+          <div className="flex flex-col gap-3 mb-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              {activeCategory !== "all" && (
+                <Badge className="bg-evenflow-blue">
+                  {activeCategory}
+                </Badge>
+              )}
+              {selectedPriceRanges.map(price => (
+                <Badge key={price} variant="outline" className="border-evenflow-blue text-evenflow-blue">
+                  {price}
+                </Badge>
+              ))}
+              {selectedRatings.map(rating => (
+                <Badge key={rating} variant="outline" className="border-yellow-400 text-yellow-400">
+                  {rating}+ <Star className="inline-block h-3 w-3 ml-1" />
+                </Badge>
+              ))}
+              {selectedLocations.map(location => (
+                <Badge key={location} variant="outline" className="border-green-500 text-green-500">
+                  <MapPin className="h-3 w-3 mr-1" /> {location}
+                </Badge>
+              ))}
             </div>
 
-            {(activeCategory !== "all" ||
-              selectedPriceRanges.length > 0 ||
-              selectedRatings.length > 0 ||
-              selectedLocations.length > 0) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setActiveCategory("all")
-                  setSelectedPriceRanges([])
-                  setSelectedRatings([])
-                  setSelectedLocations([])
-                }}
-              >
-                Clear filters
-              </Button>
-            )}
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-muted-foreground">
+                Showing {filteredVendors.length} vendors
+              </div>
+
+              {(activeCategory !== "all" ||
+                selectedPriceRanges.length > 0 ||
+                selectedRatings.length > 0 ||
+                selectedLocations.length > 0) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setActiveCategory("all")
+                    setSelectedPriceRanges([])
+                    setSelectedRatings([])
+                    setSelectedLocations([])
+                  }}
+                >
+                  Clear all
+                </Button>
+              )}
+            </div>
           </div>
 
           <ScrollArea className="h-[calc(100vh-320px)]">

@@ -122,24 +122,14 @@ export default function DashboardView() {
         })
       }
     } catch (error) {
-      // If error is 401 Unauthorized, redirect to login (API client will have tried to refresh)
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        // Token refresh failed in the API client, redirect to login
-        console.error("Authentication error:", error);
-        toast({
-          title: "Session Expired",
-          description: "Please log in again",
-          variant: "destructive"
-        });
-        window.location.href = "/login";
-      } else {
+      // All errors including 401s are handled by the authService interceptor
+      console.error("Failed to load dashboard data:", error);
         console.error("Failed to load dashboard data:", error);
         toast({
           title: "Error",
           description: "Failed to load dashboard data. Please try again.",
           variant: "destructive"
         });
-      }
     } finally {
       setLoading(false);
     }
