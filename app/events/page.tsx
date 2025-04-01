@@ -7,6 +7,9 @@ export const metadata: Metadata = {
 }
 
 export default function EventsPage() {
-  return <EventsView />
+  return <div className="relative h-[calc(100vh-4rem)] overflow-auto">
+            <EventsView />
+          </div>
 }
+
 

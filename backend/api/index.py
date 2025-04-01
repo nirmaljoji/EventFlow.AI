@@ -6,6 +6,10 @@ from .routes.food import router as food_router
 from .routes.licenses import router as licenses_router
 from .database.mongodb import MongoDB
 from contextlib import asynccontextmanager
+from copilotkit.integrations.fastapi import add_fastapi_endpoint
+from copilotkit import CopilotKitRemoteEndpoint
+from copilotkit.crewai import CrewAIAgent
+from .services.crewAI.agent import SampleAgentFlow
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,7 +27,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# add_langgraph_route(app, assistant_ui_graph, "/api/chat")
+sdk = CopilotKitRemoteEndpoint(
+    agents=[
+        CrewAIAgent(
+            name="sample_agent",
+            description="An example agent to use as a starting point for your own agent.",
+            flow=SampleAgentFlow(),
+        )
+    ],
+)
+
+add_fastapi_endpoint(app, sdk, "/copilotkit")
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(events_router, prefix="/api/events", tags=["events"])
 app.include_router(food_router, prefix="/api/events", tags=["food"])

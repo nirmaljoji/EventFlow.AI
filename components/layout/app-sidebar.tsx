@@ -86,8 +86,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
       
       <aside 
         className={cn(
-          "fixed lg:sticky top-16 h-[calc(100vh-4rem)] flex-col border-r z-50 lg:z-auto transition-all duration-300 ease-in-out",
-          "flex bg-background lg:bg-muted/40", // Solid background on mobile, semi-transparent on desktop
+          "fixed lg:sticky top-16 h-[calc(100vh-4rem)] flex flex-col border-r z-50 lg:z-auto transition-all duration-300 ease-in-out overflow-hidden",
+          "bg-background lg:bg-muted/40", // Solid background on mobile, semi-transparent on desktop
           "max-lg:shadow-lg", // Add shadow on mobile only
           collapsed ? "w-16" : "w-64",
           // On mobile: hide when collapsed, show when expanded
@@ -200,4 +200,3 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
     </>
   )
 }
-
