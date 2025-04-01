@@ -9,6 +9,7 @@ export interface Event {
   coverImage?: string
   organizer: string
   type?: string
+  budget?: number
 }
 
 
