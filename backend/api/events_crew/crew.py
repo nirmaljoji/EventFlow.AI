@@ -6,8 +6,8 @@ from crewai.project import CrewBase, agent, crew, task
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
 @CrewBase
-class FoodsCrew():
-	"""FoodsCrew crew"""
+class EventsCrew():
+	"""Events crew"""
 
 	# Learn more about YAML configuration files here:
 	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
