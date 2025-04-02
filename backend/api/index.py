@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitRemoteEndpoint
 from copilotkit.crewai import CrewAIAgent
-from .services.crewAI.agent import SampleAgentFlow
+from .events_crew.crew import EventsCrew
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,9 +30,9 @@ app.add_middleware(
 sdk = CopilotKitRemoteEndpoint(
     agents=[
         CrewAIAgent(
-            name="sample_agent",
+            name="eventsflow_crew",
             description="An example agent to use as a starting point for your own agent.",
-            flow=SampleAgentFlow(),
+            crew=EventsCrew(),
         )
     ],
 )
