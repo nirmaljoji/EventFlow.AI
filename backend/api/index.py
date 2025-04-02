@@ -30,9 +30,9 @@ app.add_middleware(
 sdk = CopilotKitRemoteEndpoint(
     agents=[
         CrewAIAgent(
-            name="events_agent",
+            name="eventsflow_crew",
             description="An example agent to use as a starting point for your own agent.",
-            flow=EventsCrew(),
+            crew=EventsCrew(),
         )
     ],
 )

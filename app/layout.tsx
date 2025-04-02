@@ -24,7 +24,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <CopilotKit 
             runtimeUrl="/api/copilotkit"
-            agent="sample_agent" 
+            agent="eventsflow_crew" 
           >
             {children}
           </CopilotKit>
