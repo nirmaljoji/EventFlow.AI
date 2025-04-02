@@ -27,6 +27,9 @@ import { EventFoodTab } from "./tabs/event-food-tab"
 import { EventLicensesTab } from "./tabs/event-licenses-tab"
 import { EventGuestsTab } from "./tabs/event-guests-tab"
 import { EventTimelineTab } from "./tabs/event-timeline-tab"
+import { EventVendorsTab } from "./tabs/event-vendors-tab"
+import { EventBudgetTab } from "./tabs/event-budget-tab"
+import { EventMarketingTab } from "./tabs/event-marketing-tab"
 
 interface EventDetailsProps {
   event: Event
@@ -182,6 +185,24 @@ export default function EventDetails({ event }: EventDetailsProps) {
             >
               Timeline
             </TabsTrigger>
+            <TabsTrigger
+              value="vendors"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+            >
+              Vendors
+            </TabsTrigger>
+            <TabsTrigger
+              value="budget"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+            >
+              Event Budget
+            </TabsTrigger>
+            <TabsTrigger
+              value="marketing"
+              className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-medium data-[state=active]:border-primary"
+            >
+              Marketing
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -203,6 +224,15 @@ export default function EventDetails({ event }: EventDetailsProps) {
 
         <TabsContent value="timeline" className="space-y-4">
           <EventTimelineTab event={event} />
+        </TabsContent>
+        <TabsContent value="vendors" className="space-y-4">
+          <EventVendorsTab event={event} />
+        </TabsContent>
+        <TabsContent value="budget" className="space-y-4">
+          <EventBudgetTab event={event} />
+        </TabsContent>
+        <TabsContent value="marketing" className="space-y-4">
+          <EventMarketingTab event={event} />
         </TabsContent>
       </Tabs>
     </div>

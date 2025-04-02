@@ -9,6 +9,7 @@ export interface Event {
   coverImage?: string
   organizer: string
   type?: string
+  budget?: number
 }
 
 
@@ -34,4 +35,31 @@ export interface Vendor {
   }
   specialties?: string[]
   isFavorite?: boolean
+}
+
+export interface License {
+  id: string
+  name: string
+  type: string
+  description: string
+  status: "approved" | "pending" | "missing" | "rejected"
+  dueDate: string
+  issuingAuthority: string
+  applicationDate?: string
+  approvalDate?: string
+  rejectionReason?: string
+  cost: number
+  icon: React.ElementType
+  requiredFields: {
+    name: string
+    type: "text" | "email" | "tel" | "textarea" | "date" | "file" | "number"
+    required: boolean
+    description?: string
+  }[]
+  documents: {
+    name: string
+    uploaded: boolean
+    url?: string
+  }[]
+  notes?: string
 }
