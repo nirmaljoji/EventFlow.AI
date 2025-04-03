@@ -23,7 +23,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     llm_with_tools = llm.bind_tools(
         [
             *tools,
-            # add_foods,
+            add_foods,
             # update_foods,
             # delete_foods,
             # select_trip,
@@ -35,6 +35,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     You are an agent that plans foods and helps the user with planning and managing their foods.
     
     Call search_for_food when you need to find foods.
+    Call foods_node when you need to add foods.
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.

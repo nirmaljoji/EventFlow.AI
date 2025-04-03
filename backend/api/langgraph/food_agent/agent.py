@@ -26,8 +26,8 @@ def route(state: AgentState):
         # foods_node or search_node based on the tool name.
         if ai_message.tool_calls:
             tool_name = ai_message.tool_calls[0]["name"]
-            # if tool_name in ["add_foods"]:
-            #     return "foods_node"
+            if tool_name in ["add_foods"]:
+                return "foods_node"
             if tool_name in ["search_for_food"]:
                 return "search_node"
             return "chat_node"
@@ -40,18 +40,18 @@ def route(state: AgentState):
 graph_builder = StateGraph(AgentState)
 
 graph_builder.add_node("chat_node", chat_node)
-# graph_builder.add_node("foods_node", foods_node)
+graph_builder.add_node("foods_node", foods_node)
 graph_builder.add_node("search_node", search_node)
-# graph_builder.add_node("perform_foods_node", perform_foods_node)
+graph_builder.add_node("perform_foods_node", perform_foods_node)
 
-graph_builder.add_conditional_edges("chat_node", route, ["search_node", END])
+graph_builder.add_conditional_edges("chat_node", route, ["search_node", "chat_node", "foods_node", END])
 
 graph_builder.add_edge(START, "chat_node")
 graph_builder.add_edge("search_node", "chat_node")
-# graph_builder.add_edge("perform_foods_node", "chat_node")
-# graph_builder.add_edge("foods_node", "perform_foods_node")
+graph_builder.add_edge("perform_foods_node", "chat_node")
+graph_builder.add_edge("foods_node", "perform_foods_node")
 
 graph = graph_builder.compile(
     checkpointer=MemorySaver(),
-    # interrupt_after=["foods_node"],
+    interrupt_after=["foods_node"],
 )

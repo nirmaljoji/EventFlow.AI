@@ -1,19 +1,19 @@
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
 import { createContext, useContext, ReactNode } from "react";
-import { Food, AgentState, FoodList } from "@/lib/types";
+import { Food, AgentState } from "@/lib/types";
 import { AddFoods } from "@/components/ai-chat/chat-sidebar/components/AddFoods";
 import { useToast } from "@/components/ui/use-toast";
 
 type FoodsContextType = {
-  foods: FoodList;
-  addFoods: (foodList: FoodList) => Promise<void>;
+  foods: Food[];
+  addFoods: (foods: Food[]) => Promise<void>;
 };
 
 const FoodsContext = createContext<FoodsContextType | undefined>(undefined);
 
 export const FoodsProvider = ({ children }: { children: ReactNode }) => {
   const { state, setState } = useCoAgent<AgentState>({
-    name: "foods",
+    name: "eventflow_agent",
     initialState: {
       foods: []
     }
@@ -22,7 +22,7 @@ export const FoodsProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useCopilotAction({ 
-    name: "search_for_food",
+    name: "add_foods",
     description: "Add food items to the event menu",
     parameters: [
       {
@@ -35,14 +35,12 @@ export const FoodsProvider = ({ children }: { children: ReactNode }) => {
     renderAndWait: AddFoods
   });
 
-  const addFoods = async (foodList: FoodList) => {
+  const addFoods = async (foods_arr: Food[]) => {
+
+
+    console.log("Adding foods", state);
     try {
-      setState({
-        ...state,
-        foods: {
-          items: [...(state.foods?.items || []), ...foodList.items]
-        }
-      });
+      setState({ ...state, foods: [...(state.foods || []), ...foods_arr] });
       toast({
         title: "Success",
         description: "Food items have been added to the event."

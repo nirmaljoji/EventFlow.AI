@@ -20,12 +20,12 @@ export type Food = {
   dietary: string
 };
 
-export type FoodList = {
-  items: Food[];
-};
+// export type FoodList = {
+//   items: Food[];
+// };
 
 export type AgentState = {
-  foods: FoodList;
+  foods: Food[];
 };
 
 

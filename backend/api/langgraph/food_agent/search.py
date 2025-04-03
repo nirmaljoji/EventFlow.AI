@@ -89,8 +89,6 @@ async def search_node(state: AgentState, config: RunnableConfig):
     )
 
     ai_message = cast(AIMessage, state["messages"][-1])
-
-
     query = ai_message.tool_calls[0]["args"]["query"]
 
 
@@ -111,11 +109,8 @@ async def search_node(state: AgentState, config: RunnableConfig):
 
     state["messages"].append(ToolMessage(
         tool_call_id=ai_message.tool_calls[0]["id"],
-        content=f"{food_list}"
+        content=f"Added the following search results: {food_list}"
     ))
-    
-    state["foods"].extend(food_list)
-
     await copilotkit_emit_state(custom_config, state)
-    
+
     return state
