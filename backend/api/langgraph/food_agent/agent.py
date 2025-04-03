@@ -26,7 +26,7 @@ def route(state: AgentState):
         # foods_node or search_node based on the tool name.
         if ai_message.tool_calls:
             tool_name = ai_message.tool_calls[0]["name"]
-            if tool_name in ["add_food"]:
+            if tool_name in ["add_foods"]:
                 return "foods_node"
             if tool_name in ["search_for_food"]:
                 return "search_node"

@@ -12,6 +12,22 @@ export interface Event {
   budget?: number
 }
 
+  
+export type Food = {
+  id: string;
+  name: string;
+  type: string
+  dietary: string
+};
+
+export type FoodList = {
+  items: Food[];
+};
+
+export type AgentState = {
+  foods: FoodList;
+};
+
 
 export interface Vendor {
   id: string
