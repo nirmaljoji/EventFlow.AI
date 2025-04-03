@@ -10,11 +10,15 @@ export const metadata: Metadata = {
 
 export default function EventsPage() {
   return (
-    <ChatSidebar>
-      <div className="relative h-[calc(100vh-4rem)] overflow-auto">
-        <EventsView />
-      </div>
-    </ChatSidebar>
+    // Apply height constraint to the container of ChatSidebar
+    <div className="h-[calc(100vh-4rem)]">
+      <ChatSidebar>
+        {/* This div now takes full height relative to its ResizablePanel parent */}
+        <div className="relative h-full overflow-auto">
+          <EventsView />
+        </div>
+      </ChatSidebar>
+    </div>
   )
 }
 

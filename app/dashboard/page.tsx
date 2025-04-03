@@ -5,12 +5,14 @@ import { ChatSidebar } from "@/components/ai-chat/chat-sidebar"
 
 export default function DashboardPage() {
   return (
-    <ChatSidebar>
-      <div className="relative h-[calc(100vh-4rem)] overflow-auto">
-        <DashboardView />
-      </div>
-    </ChatSidebar>
+    // Apply height constraint to the container of ChatSidebar
+    <div className="h-[calc(100vh-4rem)]">
+      <ChatSidebar>
+        {/* This div now takes full height relative to its ResizablePanel parent */}
+        <div className="relative h-full overflow-auto">
+          <DashboardView />
+        </div>
+      </ChatSidebar>
+    </div>
   )
 }
-
-

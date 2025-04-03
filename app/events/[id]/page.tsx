@@ -17,8 +17,14 @@ export default async function EventPage({
 }: Readonly<EventPageProps>) {
   const { id } = await params;
   return (
-    <ChatSidebar>
-      <EventPageClient eventId={id} />
-    </ChatSidebar>
+    // Apply height constraint to the container of ChatSidebar
+    <div className="h-[calc(100vh-4rem)]">
+      <ChatSidebar>
+        {/* This div now takes full height relative to its ResizablePanel parent */}
+        <div className="relative h-full overflow-auto">
+          <EventPageClient eventId={id} />
+        </div>
+      </ChatSidebar>
+    </div>
   )
 }

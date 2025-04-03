@@ -9,11 +9,15 @@ export const metadata: Metadata = {
 
 export default function VendorsPage() {
   return (
-    <ChatSidebar>
-      <div className="relative h-[calc(100vh-4rem)] overflow-auto">
-        <VendorsView />
-      </div>
-    </ChatSidebar>
+    // Apply height constraint to the container of ChatSidebar
+    <div className="h-[calc(100vh-4rem)]">
+      <ChatSidebar>
+        {/* This div now takes full height relative to its ResizablePanel parent */}
+        <div className="relative h-full overflow-auto">
+          <VendorsView />
+        </div>
+      </ChatSidebar>
+    </div>
   )
 }
 
