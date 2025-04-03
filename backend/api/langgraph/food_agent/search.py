@@ -5,7 +5,7 @@ The search node is responsible for searching the internet for information.
 import os
 import json
 import googlemaps
-from typing import cast
+from typing import cast, List
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
@@ -25,6 +25,10 @@ class Food(BaseModel):
     cuisine: float = Field(description = "The cuisine of the food")
     cost: float = Field(description = "The cost of the food")
 
+class FoodList(BaseModel):
+    """A list of Food items."""
+    items: List[Food] = Field(description = "List of food items")
+
 @tool
 def search_for_food(query: str) -> list[dict]:
     """Search for food based on a query, returns a list of foods including their name, cuisine, and price."""
@@ -42,16 +46,17 @@ async def search_node(state: AgentState, config: RunnableConfig):
     queries = ai_message.tool_calls[0]["args"]["query"]
 
     model = ChatOpenAI(model="gpt-4o", api_key=os.environ["OPENAI_API_KEY"])
-    model_with_structure = model.with_structured_output(Food)
+    model_with_structure = model.with_structured_output(FoodList)
     structured_output = model_with_structure.invoke(queries, config=config)
 
     # Convert structured output to JSON format
     food_list = []
-    food_list.append({
-        "name": structured_output.name,
-        "cuisine": structured_output.cuisine,
-        "cost": structured_output.cost
-    })
+    for food in structured_output.items:
+        food_list.append({
+            "name": food.name,
+            "cuisine": food.cuisine,
+            "cost": food.cost
+        })
     
     json_output = json.dumps(food_list)
 
