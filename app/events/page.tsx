@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import EventsView from "@/components/events/events-view"
+import { ChatSidebar } from "@/components/ai-chat/chat-sidebar"
+
 
 export const metadata: Metadata = {
   title: "Events | EvenFlow.AI",
@@ -7,9 +9,13 @@ export const metadata: Metadata = {
 }
 
 export default function EventsPage() {
-  return <div className="relative h-[calc(100vh-4rem)] overflow-auto">
-            <EventsView />
-          </div>
+  return (
+    <ChatSidebar>
+      <div className="relative h-[calc(100vh-4rem)] overflow-auto">
+        <EventsView />
+      </div>
+    </ChatSidebar>
+  )
 }
 
 

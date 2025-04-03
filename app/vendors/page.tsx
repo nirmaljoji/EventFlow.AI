@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import VendorsView from "@/components/vendors/vendors-view"
+import { ChatSidebar } from "@/components/ai-chat/chat-sidebar"
 
 export const metadata: Metadata = {
   title: "Vendors | EvenFlow.AI",
@@ -7,9 +8,13 @@ export const metadata: Metadata = {
 }
 
 export default function VendorsPage() {
-  return <div className="relative h-[calc(100vh-4rem)] overflow-auto">
-  <VendorsView />
-            </div>
+  return (
+    <ChatSidebar>
+      <div className="relative h-[calc(100vh-4rem)] overflow-auto">
+        <VendorsView />
+      </div>
+    </ChatSidebar>
+  )
 }
 
 

@@ -4,11 +4,14 @@ from langgraph.graph import MessagesState
 
 class Food(TypedDict):
     """A trip."""
-    id: str
     name: str
-    cuisine: float
-    cost: float
+    type: Literal["main", "starter", "dessert"]
+    dietary: Literal["vegetarian", "vegan", "gluten-free", "dairy-free"]
+
+class FoodList(TypedDict):
+    """A list of Food items."""
+    items: List[Food]
 
 class AgentState(MessagesState):
     """The state of the agent."""
-    foods: List[Food]
+    foods: FoodList

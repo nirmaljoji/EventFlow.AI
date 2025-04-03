@@ -5,7 +5,7 @@ The search node is responsible for searching the internet for information.
 import os
 import json
 import googlemaps
-from typing import cast, List
+from typing import cast, List, Literal
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
@@ -20,10 +20,9 @@ dotenv.load_dotenv()
 
 class Food(BaseModel):
     """A Food."""
-    id: str = Field(description = "The id of the food")
     name: str = Field(description = "The name of the food")
-    cuisine: float = Field(description = "The cuisine of the food")
-    cost: float = Field(description = "The cost of the food")
+    type: Literal["main", "starter", "dessert"] = Field(description = "The type of the food")
+    dietary: Literal["vegetarian", "vegan", "gluten-free", "dairy-free"] = Field(description = "The dietary restrictions of the food")
 
 class FoodList(BaseModel):
     """A list of Food items."""
@@ -54,8 +53,8 @@ async def search_node(state: AgentState, config: RunnableConfig):
     for food in structured_output.items:
         food_list.append({
             "name": food.name,
-            "cuisine": food.cuisine,
-            "cost": food.cost
+            "type": food.type,
+            "dietary": food.dietary
         })
     
     json_output = json.dumps(food_list)
