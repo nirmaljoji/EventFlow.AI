@@ -13,14 +13,12 @@ export type AddFoodsProps = {
 export const AddFoods = ({ args, status, handler }: AddFoodsProps) => {
   return (
     <div className="space-y-4 w-full bg-secondary p-6 rounded-lg">
-      {args.foodlist?.items?.map((food: Food) => (
-        <div key={food.id} className="flex flex-col gap-4">
+      {args.foods.map((food: Food) => (
+        <div key="1" className="flex flex-col gap-4">
           <h1 className="text-sm">The following food items will be added:</h1>
           <hr className="my-2" />
           <div className="flex flex-col gap-4">
-            {args.foodlist?.items?.map((food: Food) => (
-              <FoodCard key={food.id} food={food} />
-            ))}
+             <FoodCard key="1" food={food} />
           </div>
         </div>
       ))}

@@ -3,15 +3,29 @@
 import { useState, useRef, useEffect } from "react"
 import { CopilotChat } from "@copilotkit/react-ui"
 import "@copilotkit/react-ui/styles.css"
+import { useCoAgent, useCoAgentStateRender } from '@copilotkit/react-core';
 // Import styles directly in the component to avoid CSS module issues
 import { Bot, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
+import { TooltipProvider } from "@radix-ui/react-tooltip"
+import { FoodsProvider } from "@/hooks/use-foods"
+import { useCopilotAction } from "@copilotkit/react-core";
+import { AddFoods } from "@/components/ai-chat/chat-sidebar/components/AddFoods";
+import { FoodCard } from "@/components/ui/FoodCard";
+import { Food } from "@/lib/types";
+import { MapPin, Info } from "lucide-react";
+
 
 interface ChatSidebarProps {
   children: React.ReactNode
 }
+
+
+type AgentState = {
+  observed_food: string;
+};
 
 export function ChatSidebar({ children }: ChatSidebarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -80,13 +94,17 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
                   scrollbarColor: 'rgba(0, 0, 0, 0.1) transparent'
                 }}>
                   <div className="h-full flex flex-col">
-                    <CopilotChat
-                      labels={{
-                        title: "EventFlow Assistant",
-                        initial: "Hi! 👋 How can I help you plan your event today?",
-                      }}
-                      className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
-                    />
+                    <main>
+                      <YourMainContent />
+                      <CopilotChat
+                            labels={{
+                              title: "EventFlow Assistant",
+                              initial: "Hi! 👋 How can I help you plan your event today?",
+                            }}
+                            className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
+                          />
+                    </main>
+
                   </div>
                 </div>
               </div>
@@ -107,3 +125,40 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
     </>
   )
 }
+
+
+function YourMainContent() {
+
+  useCopilotAction({ 
+    name: "search_for_food",
+    description: "Add food items to the event menu",
+    parameters: [
+      {
+        name: "query",
+        type: "string",
+        description: "The query to fetch food items for the event",
+        required: true,
+      },
+      {
+        name: "foods",
+        type: "object[]",
+        description: "The food items to add to the event",
+      }
+    ],
+    render: ({args}) => {
+
+      console.log(args)
+
+      return (
+        <p className="text-gray-500 mt-2">
+          {status !== "complete" && "Preparin your menu..."}
+          {status === "complete" && `Got results for ${args.query}.`}
+        </p>
+      );
+    },
+  });
+
+
+  return null;
+}
+

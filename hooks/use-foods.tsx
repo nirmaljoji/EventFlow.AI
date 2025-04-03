@@ -13,16 +13,16 @@ const FoodsContext = createContext<FoodsContextType | undefined>(undefined);
 
 export const FoodsProvider = ({ children }: { children: ReactNode }) => {
   const { state, setState } = useCoAgent<AgentState>({
-    name: "food",
+    name: "foods",
     initialState: {
-      foods: { items: [] }
+      foods: []
     }
   });
   
   const { toast } = useToast();
 
   useCopilotAction({ 
-    name: "add_foods",
+    name: "search_for_food",
     description: "Add food items to the event menu",
     parameters: [
       {

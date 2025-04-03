@@ -4,6 +4,7 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from .state import AgentState, Food
 from copilotkit.langgraph import copilotkit_emit_message
+from .state import AgentState, Food, FoodList
 
 async def foods_node(state: AgentState, config: RunnableConfig): # pylint: disable=unused-argument
     """
