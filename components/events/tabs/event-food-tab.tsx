@@ -1,4 +1,5 @@
 import { UtensilsCrossed, Wine, ShoppingBasket, Plus, Trash2, Edit } from "lucide-react"
+import { useMemo } from "react"
 import { useState, useEffect } from "react"
 import type { Event } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,9 +13,12 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDistanceToNow } from "date-fns"
+import { useFoods } from "@/hooks/use-foods"
+import { Food } from "@/lib/types"
 
 // Define types based on your API
 interface MenuItem {
+  id: number
   name: string
   type: string
   dietary: string
@@ -63,8 +67,10 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export function EventFoodTab({ event }: EventFoodTabProps) {
   const { toast } = useToast()
+  const { foods } = useFoods()
   const [foodData, setFoodData] = useState<EventFoodData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [localFoods, setLocalFoods] = useState<MenuItem[]>([])
   const [error, setError] = useState<string | null>(null)
   
   // Get event_id from event prop
@@ -77,6 +83,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
   
   // Form states
   const [newMenuItem, setNewMenuItem] = useState<MenuItem>({
+    id: Date.now(),
     name: "",
     type: "Main",
     dietary: "None",
@@ -159,6 +166,25 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
     }
   }, [event_id])
 
+  useEffect(() => {
+    if (foods && foods.length > 0) {
+      const newMenuItems = foods.map(food => ({
+        id: food.id,
+        name: food.name,
+        type: food.type,
+        dietary: food.dietary,
+        status: 'Approved'
+      }))
+      
+      setLocalFoods(newMenuItems)
+    }
+  }, [foods])
+
+  const mergedMenuItems = useMemo(() => {
+    if (!foodData) return localFoods
+    return [...foodData.menu_items, ...localFoods]
+  }, [foodData, localFoods])
+
   // Function to format last updated date
   const formatLastUpdated = (dateString: string) => {
     try {
@@ -201,6 +227,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
   // Reset form function for menu items
   const resetMenuItemForm = () => {
     setNewMenuItem({
+      id: Date.now(),
       name: "",
       type: "Main",
       dietary: "None",
@@ -743,7 +770,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
                     <div>Actions</div>
                   </div>
 
-                  {foodData.menu_items.map((item, index) => (
+                  {mergedMenuItems.map((item: MenuItem, index: number) => (
                     <div key={index} className="grid grid-cols-6 items-center px-4 py-3 hover:bg-muted/50">
                       <div className="col-span-2 font-medium">{item.name}</div>
                       <div>{item.type}</div>

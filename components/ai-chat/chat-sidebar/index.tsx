@@ -91,7 +91,6 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
                 }}>
                   <div className="h-full flex flex-col">
                       <TooltipProvider>
-                        <FoodsProvider>
                         <CopilotChat
                             labels={{
                               title: "EventFlow Assistant",
@@ -99,7 +98,6 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
                             }}
                             className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
                           />
-                        </FoodsProvider>
                       </TooltipProvider>
 
                   </div>

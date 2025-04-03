@@ -1,12 +1,15 @@
+"use client";
+
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useMemo } from "react";
 import { Food, AgentState } from "@/lib/types";
 import { AddFoods } from "@/components/ai-chat/chat-sidebar/components/AddFoods";
 import { useToast } from "@/components/ui/use-toast";
 
 type FoodsContextType = {
   foods: Food[];
-  addFoods: (foods: Food[]) => Promise<void>;
+  addFoods: (foods: Food[]) => Promise<Food[]>;
+  getFoodById: (id: number) => Food | undefined;
 };
 
 const FoodsContext = createContext<FoodsContextType | undefined>(undefined);
@@ -21,7 +24,7 @@ export const FoodsProvider = ({ children }: { children: ReactNode }) => {
   
   const { toast } = useToast();
 
-  useCopilotAction({ 
+  useCopilotAction({
     name: "add_foods",
     description: "Add food items to the event menu",
     parameters: [
@@ -35,29 +38,45 @@ export const FoodsProvider = ({ children }: { children: ReactNode }) => {
     renderAndWait: AddFoods
   });
 
+  const getFoodById = useMemo(() => (id: number) => {
+    return state.foods?.find(food => food.id === id);
+  }, [state.foods]);
+
   const addFoods = async (foods_arr: Food[]) => {
-
-
-    console.log("Adding foods", state);
     try {
-      setState({ ...state, foods: [...(state.foods || []), ...foods_arr] });
+      const newFoods = foods_arr.map(food => ({
+        ...food,
+        id: Date.now() + Math.floor(Math.random() * 1000) // Ensure unique ID
+      }));
+      
+      setState(prev => {
+        if (!prev) return { foods: newFoods };
+        return {
+          ...prev,
+          foods: [...(prev.foods || []), ...newFoods]
+        };
+      });
+      
       toast({
         title: "Success",
         description: "Food items have been added to the event."
       });
+      return newFoods;
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to add food items. Please try again."
       });
+      throw error;
     }
   };
 
   return (
-    <FoodsContext.Provider value={{ 
-      foods: state.foods || { items: [] }, 
-      addFoods
+    <FoodsContext.Provider value={{
+      foods: state.foods || [],
+      addFoods,
+      getFoodById
     }}>
       {children}
     </FoodsContext.Provider>
