@@ -8,8 +8,10 @@ from .database.mongodb import MongoDB
 from contextlib import asynccontextmanager
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitRemoteEndpoint
-from copilotkit.crewai import CrewAIAgent
-from .events_crew.crew import EventsCrew
+from copilotkit import LanggraphAgent
+from .langgraph.food_agent.agent import graph
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,10 +31,10 @@ app.add_middleware(
 
 sdk = CopilotKitRemoteEndpoint(
     agents=[
-        CrewAIAgent(
-            name="eventsflow_crew",
-            description="An example agent to use as a starting point for your own agent.",
-            crew=EventsCrew(),
+        LanggraphAgent(
+            name="eventflow_agent",
+            description="You are an Assistnat to manage events",
+            agent = graph(),
         )
     ],
 )
