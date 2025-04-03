@@ -31,10 +31,10 @@ app.add_middleware(
 
 sdk = CopilotKitRemoteEndpoint(
     agents=[
-        LanggraphAgent(
+        LangGraphAgent(
             name="eventflow_agent",
             description="You are an Assistnat to manage events",
-            agent = graph(),
+            agent = graph,
         )
     ],
 )

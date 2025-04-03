@@ -2,7 +2,7 @@ from typing import cast, List
 from langchain_core.messages import ToolMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
-from state import AgentState, Trip, Place
+from .state import AgentState, Trip, Place
 from copilotkit.langgraph import copilotkit_emit_message
 
 async def trips_node(state: AgentState, config: RunnableConfig): # pylint: disable=unused-argument

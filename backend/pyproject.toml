@@ -40,7 +40,8 @@ dependencies = [
      "apscheduler (>=3.11.0,<4.0.0)",
      "notion-client (>=2.3.0,<3.0.0)",
      "langgraph-supervisor (>=0.0.11,<0.0.12)",
-     "copilotkit"
+     "copilotkit",
+     "googlemaps (>=4.10.0,<5.0.0)"
 
 ]
 package-mode = false

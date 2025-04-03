@@ -1595,6 +1595,20 @@ protobuf = ">=3.20.2,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4
 grpc = ["grpcio (>=1.44.0,<2.0.0.dev0)"]
 
 [[package]]
+name = "googlemaps"
+version = "4.10.0"
+description = "Python client library for Google Maps Platform"
+optional = false
+python-versions = ">=3.5"
+groups = ["main"]
+files = [
+    {file = "googlemaps-4.10.0.tar.gz", hash = "sha256:3055fcbb1aa262a9159b589b5e6af762b10e80634ae11c59495bd44867e47d88"},
+]
+
+[package.dependencies]
+requests = ">=2.20.0,<3.0"
+
+[[package]]
 name = "greenlet"
 version = "3.1.1"
 description = "Lightweight in-process concurrent programming"
@@ -7942,4 +7956,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<=3.12"
-content-hash = "88dfc6f644e8a63c50fd76c86272bed4919029afc6304cace49fc7f54338e549"
+content-hash = "615f4047b9e260cc3eda12d7dac8184b97ba46ec44589438f7340702bd3dcb23"

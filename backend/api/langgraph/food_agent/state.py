@@ -1,4 +1,5 @@
-from typing import Literal, TypedDict, List, Optional
+from typing import Literal, List, Optional
+from typing_extensions import TypedDict
 from langgraph.graph import MessagesState
 
 class Place(TypedDict):

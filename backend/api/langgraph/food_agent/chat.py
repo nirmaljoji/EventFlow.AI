@@ -1,20 +1,23 @@
 import json
-from state import AgentState
+from .state import AgentState
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
-from search import search_for_places
-from trips import add_trips, update_trips, delete_trips
+from .search import search_for_places
+from .trips import add_trips, update_trips, delete_trips
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
 from typing import cast
 from langchain_core.tools import tool
+import os
+import dotenv
+dotenv.load_dotenv()
 
 @tool
 def select_trip(trip_id: str):
     """Select a trip"""
     return f"Selected trip {trip_id}"
 
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model="gpt-4o", api_key=os.environ["OPENAI_API_KEY"])
 tools = [search_for_places, select_trip]
 
 async def chat_node(state: AgentState, config: RunnableConfig):
