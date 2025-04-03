@@ -2,12 +2,14 @@ import json
 from .state import AgentState
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
-from .search import search_for_places
-from .trips import add_trips, update_trips, delete_trips
+from .search import search_for_food
+from .foods import add_foods
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
 from typing import cast
 from langchain_core.tools import tool
+from .search import search_for_food
+
 import os
 import dotenv
 dotenv.load_dotenv()
@@ -18,26 +20,26 @@ def select_trip(trip_id: str):
     return f"Selected trip {trip_id}"
 
 llm = ChatOpenAI(model="gpt-4o", api_key=os.environ["OPENAI_API_KEY"])
-tools = [search_for_places, select_trip]
+tools = [search_for_food]
 
 async def chat_node(state: AgentState, config: RunnableConfig):
     """Handle chat operations"""
     llm_with_tools = llm.bind_tools(
         [
             *tools,
-            add_trips,
-            update_trips,
-            delete_trips,
-            select_trip,
+            add_foods,
+            # update_foods,
+            # delete_foods,
+            # select_trip,
         ],
         parallel_tool_calls=False,
     )
 
     system_message = f"""
-    You are an agent that plans trips and helps the user with planning and managing their trips.
+    You are an agent that plans foods and helps the user with planning and managing their foods.
     If the user did not specify a location, you should ask them for a location.
     
-    Plan the trips for the user, take their preferences into account if specified, but if they did not
+    Plan the foods for the user, take their preferences into account if specified, but if they did not
     specify any preferences, call the search_for_places tool to find places of interest, restaurants, and activities.
 
     Unless the users prompt specifies otherwise, only use the first 10 results from the search_for_places tool relevant
@@ -51,8 +53,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
 
     If an operation is cancelled by the user, DO NOT try to perform the operation again. Just ask what the user would like to do now
     instead.
-
-    Current trips: {json.dumps(state.get('trips', []))}
+    
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.
@@ -66,18 +67,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
 
     ai_message = cast(AIMessage, response)
 
-    if ai_message.tool_calls:
-        if ai_message.tool_calls[0]["name"] == "select_trip":
-            return {
-                "selected_trip_id": ai_message.tool_calls[0]["args"].get("trip_id", ""),
-                "messages": [ai_message, ToolMessage(
-                    tool_call_id=ai_message.tool_calls[0]["id"],
-                    content="Trip selected."
-                )]
-            }
-
     return {
         "messages": [response],
-        "selected_trip_id": state.get("selected_trip_id", None),
-        "trips": state.get("trips", [])
+        "foods": state.get("foods", [])
     }

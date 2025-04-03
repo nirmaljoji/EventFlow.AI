@@ -7,10 +7,10 @@ from typing import cast
 from langchain_core.messages import ToolMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
-from .trips import trips_node
+from .foods import foods_node
 from .chat import chat_node
 from .search import search_node
-from .trips import perform_trips_node
+from .foods import perform_foods_node
 from .state import AgentState
 
 # Route is responsible for determing the next node based on the last message. This
@@ -23,12 +23,12 @@ def route(state: AgentState):
         ai_message = cast(AIMessage, messages[-1])
         
         # If the last AI message has tool calls we need to determine to route to the
-        # trips_node or search_node based on the tool name.
+        # foods_node or search_node based on the tool name.
         if ai_message.tool_calls:
             tool_name = ai_message.tool_calls[0]["name"]
-            if tool_name in ["add_trips", "update_trips", "delete_trips", "select_trip"]:
-                return "trips_node"
-            if tool_name in ["search_for_places"]:
+            if tool_name in ["add_food"]:
+                return "foods_node"
+            if tool_name in ["search_for_food"]:
                 return "search_node"
             return "chat_node"
     
@@ -40,18 +40,18 @@ def route(state: AgentState):
 graph_builder = StateGraph(AgentState)
 
 graph_builder.add_node("chat_node", chat_node)
-graph_builder.add_node("trips_node", trips_node)
+graph_builder.add_node("foods_node", foods_node)
 graph_builder.add_node("search_node", search_node)
-graph_builder.add_node("perform_trips_node", perform_trips_node)
+graph_builder.add_node("perform_foods_node", perform_foods_node)
 
-graph_builder.add_conditional_edges("chat_node", route, ["search_node", "chat_node", "trips_node", END])
+graph_builder.add_conditional_edges("chat_node", route, ["search_node", "chat_node", "foods_node", END])
 
 graph_builder.add_edge(START, "chat_node")
 graph_builder.add_edge("search_node", "chat_node")
-graph_builder.add_edge("perform_trips_node", "chat_node")
-graph_builder.add_edge("trips_node", "perform_trips_node")
+graph_builder.add_edge("perform_foods_node", "chat_node")
+graph_builder.add_edge("foods_node", "perform_foods_node")
 
 graph = graph_builder.compile(
     checkpointer=MemorySaver(),
-    interrupt_after=["trips_node"],
+    interrupt_after=["foods_node"],
 )

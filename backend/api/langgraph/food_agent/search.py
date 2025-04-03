@@ -6,65 +6,60 @@ import os
 import json
 import googlemaps
 from typing import cast
+from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain.tools import tool
 from copilotkit.langgraph import copilotkit_emit_state, copilotkit_customize_config
 from .state import AgentState
+from pydantic import BaseModel, Field
+import os
+import dotenv
+dotenv.load_dotenv()
+
+
+class Food(BaseModel):
+    """A Food."""
+    id: str = Field(description = "The id of the food")
+    name: str = Field(description = "The name of the food")
+    cuisine: float = Field(description = "The cuisine of the food")
+    cost: float = Field(description = "The cost of the food")
 
 @tool
-def search_for_places(queries: list[str]) -> list[dict]:
-    """Search for places based on a query, returns a list of places including their name, address, and coordinates."""
-
+def search_for_food(query: str) -> list[dict]:
+    """Search for food based on a query, returns a list of foods including their name, cuisine, and price."""
 
 async def search_node(state: AgentState, config: RunnableConfig):
     """
-    The search node is responsible for searching the for places.
+    The search node is responsible for searching the for food.
     """
     ai_message = cast(AIMessage, state["messages"][-1])
 
     config = copilotkit_customize_config(
-        config,
-        emit_intermediate_state=[{
-            "state_key": "search_progress",
-            "tool": "search_for_places",
-            "tool_argument": "search_progress",
-        }],
+        config
     )
 
-    state["search_progress"] = state.get("search_progress", [])
-    queries = ai_message.tool_calls[0]["args"]["queries"]
+    queries = ai_message.tool_calls[0]["args"]["query"]
 
-    for query in queries:
-        state["search_progress"].append({
-            "query": query,
-            "results": [],
-            "done": False
-        })
+    model = ChatOpenAI(model="gpt-4o", api_key=os.environ["OPENAI_API_KEY"])
+    model_with_structure = model.with_structured_output(Food)
+    structured_output = model_with_structure.invoke(queries, config=config)
 
-    await copilotkit_emit_state(config, state)
+    # Convert structured output to JSON format
+    food_list = []
+    food_list.append({
+        "name": structured_output.name,
+        "cuisine": structured_output.cuisine,
+        "cost": structured_output.cost
+    })
+    
+    json_output = json.dumps(food_list)
 
-    places = []
-    for i, query in enumerate(queries):
-        for j in range(1,10):
-            place = {
-                "id": "1",
-                "name": "test",
-                "address": "test_address",
-                "latitude":"11111",
-                "longitude": "1111",
-                "rating": "5",
-            }
-            places.append(place)
-        state["search_progress"][i]["done"] = True
-        await copilotkit_emit_state(config, state)
-
-    state["search_progress"] = []
     await copilotkit_emit_state(config, state)
 
     state["messages"].append(ToolMessage(
         tool_call_id=ai_message.tool_calls[0]["id"],
-        content=f"Added the following search results: {json.dumps(places)}"
+        content=f"Added the following search results: {json_output}"
     ))
 
     return state
