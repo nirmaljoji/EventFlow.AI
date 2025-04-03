@@ -7,11 +7,11 @@ from typing import cast
 from langchain_core.messages import ToolMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
-from travel.trips import trips_node
-from travel.chat import chat_node
-from travel.search import search_node
-from travel.trips import perform_trips_node
-from travel.state import AgentState
+from trips import trips_node
+from chat import chat_node
+from search import search_node
+from trips import perform_trips_node
+from state import AgentState
 
 # Route is responsible for determing the next node based on the last message. This
 # is needed because LangGraph does not automatically route to nodes, instead that

@@ -8,7 +8,7 @@ from .database.mongodb import MongoDB
 from contextlib import asynccontextmanager
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitRemoteEndpoint
-from copilotkit import LanggraphAgent
+from copilotkit import LangGraphAgent
 from .langgraph.food_agent.agent import graph
 
 
