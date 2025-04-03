@@ -14,7 +14,7 @@ export interface Event {
 
   
 export type Food = {
-  id: string;
+  id: number;
   name: string;
   type: string
   dietary: string

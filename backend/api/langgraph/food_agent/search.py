@@ -97,8 +97,10 @@ async def search_node(state: AgentState, config: RunnableConfig):
     tool_msg = model_with_structure.invoke(query, config=custom_config)
     # Convert structured output to JSON format
     food_list = []
-    for food in tool_msg.items:
+    for i, food in enumerate(tool_msg.items):
+
         food_list.append({
+            "id": i,
             "name": food.name,
             "type": food.type,
             "dietary": food.dietary
