@@ -3,6 +3,7 @@
 import React, { useEffect } from "react"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { WaitForUserInput } from "@/components/ai-chat/chat-sidebar/components/WaitForUserInput"  
 import { ThemeProvider } from "@/components/theme-provider"
 import { CopilotKit } from "@copilotkit/react-core"
 import { authService } from "@/app/services/auth"
@@ -42,8 +43,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <CopilotKit
             runtimeUrl="/api/copilotkit"
-            agent="eventsflow_crew" 
+            agent="weather_agent"             
           >
+            <WaitForUserInput />
             {children}
           </CopilotKit>
         </ThemeProvider>
