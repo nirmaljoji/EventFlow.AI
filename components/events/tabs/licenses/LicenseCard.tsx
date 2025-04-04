@@ -115,7 +115,7 @@ export function LicenseCard({
         issuingAuthority: editedLicense.issuingAuthority,
         cost: parseFloat(editedLicense.cost.toString()), // Send as number, not string
         notes: editedLicense.notes || "",
-        documents: editedLicense.documents,
+        documents: editedLicense.documents || [],
         eventId: eventId,
         // Required fields in LicenseCreate but may not be present in the frontend model
         requiredFields: editedLicense.requiredFields || [],
@@ -177,7 +177,12 @@ export function LicenseCard({
       }
 
       // Create a new documents array with the updated status
-      const newDocs = [...editedLicense.documents]
+      const newDocs = [...(editedLicense.documents || [])]
+      if (!newDocs[index]) {
+        console.error("Document at index", index, "does not exist");
+        return;
+      }
+      
       newDocs[index] = { ...newDocs[index], uploaded: checked }
       
       // Update local state optimistically
@@ -404,12 +409,12 @@ export function LicenseCard({
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Required Documents</h4>
                   <span className="text-sm text-muted-foreground">
-                    {editedLicense.documents.filter(doc => doc.uploaded).length} / {editedLicense.documents.length}
+                    {editedLicense.documents && editedLicense.documents.filter(doc => doc.uploaded).length} / {editedLicense.documents ? editedLicense.documents.length : 0}
                   </span>
                 </div>
                 <div className="rounded-md border p-3">
                   <div className="space-y-3">
-                    {editedLicense.documents.map((doc, index) => (
+                    {editedLicense.documents && editedLicense.documents.map((doc, index) => (
                       <div key={index} className="flex items-center gap-3">
                         <Checkbox
                           checked={doc.uploaded}
@@ -474,7 +479,7 @@ export function LicenseCard({
                           setEditedLicense({
                             ...editedLicense,
                             documents: [
-                              ...editedLicense.documents,
+                              ...(editedLicense.documents || []),
                               { name: "", uploaded: false }
                             ]
                           })

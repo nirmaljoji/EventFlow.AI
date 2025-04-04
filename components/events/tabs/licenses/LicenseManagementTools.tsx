@@ -96,7 +96,9 @@ export function LicenseManagementTools({
 
           <TabsContent value="all" className="space-y-4">
             <div className="grid gap-4">
-              {filteredLicenses.map(renderLicenseCard)}
+              {filteredLicenses.map((license) => (
+                <div key={license.id}>{renderLicenseCard(license)}</div>
+              ))}
               {filteredLicenses.length === 0 && (
                 <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
                   <div className="flex flex-col items-center gap-1 text-center">
@@ -111,7 +113,9 @@ export function LicenseManagementTools({
 
           <TabsContent value="approved" className="space-y-4">
             <div className="grid gap-4">
-              {approvedLicenses.map(renderLicenseCard)}
+              {approvedLicenses.map((license) => (
+                <div key={license.id}>{renderLicenseCard(license)}</div>
+              ))}
               {approvedLicenses.length === 0 && (
                 <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
                   <div className="flex flex-col items-center gap-1 text-center">
@@ -126,7 +130,9 @@ export function LicenseManagementTools({
 
           <TabsContent value="pending" className="space-y-4">
             <div className="grid gap-4">
-              {pendingLicenses.map(renderLicenseCard)}
+              {pendingLicenses.map((license) => (
+                <div key={license.id}>{renderLicenseCard(license)}</div>
+              ))}
               {pendingLicenses.length === 0 && (
                 <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
                   <div className="flex flex-col items-center gap-1 text-center">
@@ -141,7 +147,9 @@ export function LicenseManagementTools({
 
           <TabsContent value="missing" className="space-y-4">
             <div className="grid gap-4">
-              {missingLicenses.map(renderLicenseCard)}
+              {missingLicenses.map((license) => (
+                <div key={license.id}>{renderLicenseCard(license)}</div>
+              ))}
               {missingLicenses.length === 0 && (
                 <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
                   <div className="flex flex-col items-center gap-1 text-center">
@@ -156,7 +164,9 @@ export function LicenseManagementTools({
 
           <TabsContent value="rejected" className="space-y-4">
             <div className="grid gap-4">
-              {rejectedLicenses.map(renderLicenseCard)}
+              {rejectedLicenses.map((license) => (
+                <div key={license.id}>{renderLicenseCard(license)}</div>
+              ))}
               {rejectedLicenses.length === 0 && (
                 <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed">
                   <div className="flex flex-col items-center gap-1 text-center">

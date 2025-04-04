@@ -21,72 +21,71 @@ type LicenseCardProps = {
   actions?: ReactNode;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  isExpanded?: boolean;
+  onToggleExpand?: (id: string) => void;
+  onEditClick?: (license: License) => void;
+  eventId?: string;
+  onSubmit?: (formData: any) => Promise<void>;
 };
 
-export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, className, number }: LicenseCardProps) {
+export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, className, number, isExpanded, onToggleExpand, onEditClick, eventId, onSubmit }: LicenseCardProps) {
   const getLicenseTypeIcon = () => {
-    switch(license.name?.toLowerCase()) {
-      case "Venue":
-        return <Leaf className="w-3 h-3" />;
-      case "Food & Beverage":
-        return <Coffee className="w-3 h-3" />;
-      case "Safety":
-        return <IceCream className="w-3 h-3" />;
-      case "Entertainment":
-        return <Milk className="w-3 h-3" />;
-      case "Logistics":
-        return <Utensils className="w-3 h-3" />;
-    }
+    const type = license.name?.toLowerCase() || "";
+    if (type.includes("venue")) return <Leaf className="w-3 h-3" />;
+    if (type.includes("food") || type.includes("beverage")) return <Coffee className="w-3 h-3" />;
+    if (type.includes("safety")) return <IceCream className="w-3 h-3" />;
+    if (type.includes("entertainment")) return <Milk className="w-3 h-3" />;
+    if (type.includes("logistics")) return <Utensils className="w-3 h-3" />;
+    return <CircleCheck className="w-3 h-3" />;
   };
 
   const getLicenseTypeInfo = () => {
-    switch(license.issuing_authority?.toLowerCase()) {
-      case "Venue":
-        return { 
-          icon: <Leaf className="w-3 h-3" />, 
-          color: "bg-green-100 text-green-800 border-green-200" 
-        };
-      case "Food & Beverage":
-        return { 
-          icon: <Leaf className="w-3 h-3" />, 
-          color: "bg-emerald-100 text-emerald-800 border-emerald-200" 
-        };
-      case "Safety":
-        return { 
-          icon: <Wheat className="w-3 h-3" />, 
-          color: "bg-amber-100 text-amber-800 border-amber-200" 
-        };
-      case "Entertainment":
-        return { 
-          icon: <Milk className="w-3 h-3" />, 
-          color: "bg-blue-100 text-blue-800 border-blue-200" 
-        };
-      default:
-        return { 
-          icon: <CircleCheck className="w-3 h-3" />, 
-          color: "bg-gray-100 text-gray-800 border-gray-200" 
-        };
+    const type = license.name?.toLowerCase() || "";
+    if (type.includes("venue")) {
+      return { 
+        icon: <Leaf className="w-3 h-3" />, 
+        color: "bg-green-100 text-green-800 border-green-200" 
+      };
     }
+    if (type.includes("food") || type.includes("beverage")) {
+      return { 
+        icon: <Coffee className="w-3 h-3" />, 
+        color: "bg-emerald-100 text-emerald-800 border-emerald-200" 
+      };
+    }
+    if (type.includes("safety")) {
+      return { 
+        icon: <Wheat className="w-3 h-3" />, 
+        color: "bg-amber-100 text-amber-800 border-amber-200" 
+      };
+    }
+    if (type.includes("entertainment")) {
+      return { 
+        icon: <Milk className="w-3 h-3" />, 
+        color: "bg-blue-100 text-blue-800 border-blue-200" 
+      };
+    }
+    if (type.includes("logistics")) {
+      return { 
+        icon: <Utensils className="w-3 h-3" />, 
+        color: "bg-orange-100 text-orange-800 border-orange-200" 
+      };
+    }
+    return { 
+      icon: <CircleCheck className="w-3 h-3" />, 
+      color: "bg-gray-100 text-gray-800 border-gray-200" 
+    };
   };
 
-// Get color for license type
+  // Get color for license type
   const getTypeColor = () => {
-    switch(license.issuing_authority?.toLowerCase()) {
-      case "  Venue":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "Food & Beverage":
-        return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      case "Safety":
-        return "bg-amber-100 text-amber-800 border-amber-200";
-      case "Entertainment":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Logistics":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Entertainment":
-        return "bg-pink-100 text-pink-800 border-pink-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
+    const type = license.name?.toLowerCase() || "";
+    if (type.includes("venue")) return "bg-green-100 text-green-800 border-green-200";
+    if (type.includes("food") || type.includes("beverage")) return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    if (type.includes("safety")) return "bg-amber-100 text-amber-800 border-amber-200";
+    if (type.includes("entertainment")) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (type.includes("logistics")) return "bg-orange-100 text-orange-800 border-orange-200";
+    return "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   const licenseTypeInfo = getLicenseTypeInfo();
@@ -129,8 +128,8 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
             </Badge>
           </div>
 
-                    {/* Notes section */}
-                    {license.notes && (
+          {/* Notes section */}
+          {license.notes && (
             <div className="mt-2 text-xs text-muted-foreground">
               <p className="line-clamp-2">{license.notes}</p>
             </div>
@@ -144,7 +143,7 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
                 <span className="font-medium text-blue-700">Required Documents</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {license.required_documents.map((doc, idx) => {
+                {license.required_documents.map((doc, idx: number) => {
                   // Rotate through different colors for document badges
                   const colors = [
                     "bg-blue-50 text-blue-700 border-blue-200",

@@ -15,8 +15,6 @@ import { useCopilotAction } from "@copilotkit/react-core";
 import { AddLicenses } from "@/components/ai-chat/chat-sidebar/components/AddLicenses";
 
 import { MapPin, Info } from "lucide-react";
-import { LicensesProvider } from "@/hooks/use-licenses";
-
 
 interface ChatSidebarProps {
   children: React.ReactNode
@@ -90,17 +88,13 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
                 }}>
                   <div className="h-full flex flex-col">
                       <TooltipProvider>
-                        {/* <FoodsProvider> */}
-                          <LicensesProvider>
-                            <CopilotChat
-                              labels={{
-                                title: "EventFlow Assistant",
-                                initial: "Hi! 👋 How can I help you plan your event today?",
-                              }}
-                              className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
-                            />
-                          </LicensesProvider>
-                        {/* </FoodsProvider> */}
+                        <CopilotChat
+                          labels={{
+                            title: "EventFlow Assistant",
+                            initial: "Hi! 👋 How can I help you plan your event today?",
+                          }}
+                          className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
+                        />
                       </TooltipProvider>
                   </div>
                 </div>

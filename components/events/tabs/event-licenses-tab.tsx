@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { LicensesHeader } from "./licenses/LicensesHeader"
 import { AddLicenseDialog } from "./licenses/AddLicenseDialog"
 import { EditLicenseDialog } from "./licenses/EditLicenseDialog"
@@ -45,6 +45,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
+import { useLicenses } from "@/hooks/use-licenses"
 
 interface EventLicensesTabProps {
   event: Event
@@ -53,7 +54,9 @@ interface EventLicensesTabProps {
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export function EventLicensesTab({ event }: EventLicensesTabProps) {
+  const { licenses: hooksLicenses } = useLicenses()
   const [licenses, setLicenses] = useState<License[]>([])
+  const [localLicenses, setLocalLicenses] = useState<License[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAddLicenseOpen, setIsAddLicenseOpen] = useState(false)
@@ -104,6 +107,24 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
     }
   }, [event.id])
 
+  // Apply licenses from the useLicenses hook
+  useEffect(() => {
+    if (hooksLicenses && hooksLicenses.length > 0) {
+      const newLicenseItems = hooksLicenses.map(license => ({
+        ...license,
+        icon: getIconForLicenseType(license.type)
+      }))
+      
+      setLocalLicenses(newLicenseItems)
+    }
+  }, [hooksLicenses])
+
+  // Merge fetched licenses with local licenses from the hook
+  const mergedLicenses = useMemo(() => {
+    if (!licenses.length) return localLicenses
+    return [...licenses, ...localLicenses]
+  }, [licenses, localLicenses])
+
   // Helper function to get icon based on license type
   const getIconForLicenseType = (type: string): React.ElementType => {
     switch (type) {
@@ -128,7 +149,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
   // Filter licenses based on search query and active filter
-  const filteredLicenses = licenses.filter((license) => {
+  const filteredLicenses = mergedLicenses.filter((license) => {
     const matchesSearch =
       license.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       license.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -152,7 +173,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
   const rejectedLicenses = filteredLicenses.filter((license) => license.status === "rejected")
 
   // Calculate total cost
-  const totalCost = licenses.reduce((sum, license) => sum + license.cost, 0)
+  const totalCost = mergedLicenses.reduce((sum, license) => sum + license.cost, 0)
   const paidCost = approvedLicenses.reduce((sum, license) => sum + license.cost, 0)
 
   const handleExport = () => {
@@ -169,7 +190,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
         "Notes"
       ]
       
-      const rows = licenses.map(license => [
+      const rows = mergedLicenses.map(license => [
         license.name,
         license.type,
         license.status,
@@ -459,7 +480,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
       />
 
       <LicenseStatsCards
-        totalLicenses={licenses.length}
+        totalLicenses={mergedLicenses.length}
         approvedLicenses={approvedLicenses.length}
         pendingLicenses={pendingLicenses.length}
         missingLicenses={missingLicenses.length}
@@ -472,7 +493,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
         onSearchChange={setSearchQuery}
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
-        licenses={licenses}
+        licenses={mergedLicenses}
         filteredLicenses={filteredLicenses}
         approvedLicenses={approvedLicenses}
         pendingLicenses={pendingLicenses}

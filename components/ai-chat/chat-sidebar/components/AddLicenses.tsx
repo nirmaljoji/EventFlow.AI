@@ -11,11 +11,23 @@ export type AddLicensesProps = {
 };
 
 export const AddLicenses = ({ args, status, handler }: AddLicensesProps) => {
+  // Ensure licenses have all required properties
+  const processedLicenses = args.licenses?.map((license: any) => {
+    // Create a license object with all required properties
+    return {
+      name: license.name || "",
+      issuing_authority: license.issuing_authority || license.issuingAuthority || "",
+      cost: license.cost || 0,
+      required_documents: license.required_documents || [],
+      notes: license.notes || ""
+    } as License;
+  });
+
   return (
     <div className="w-full bg-secondary p-4 rounded-lg">
       <h1 className="text-sm mb-3">The following licenses will be added:</h1>
       <div className="space-y-2"> {/* Reduced spacing between cards */}
-        {args.licenses?.map((license: License, index: number) => (
+        {processedLicenses?.map((license: License, index: number) => (
           <div key={`${license.name}-${index}`}>
             {index > 0 && <div className="border-t border-border/30 my-2" />} {/* Lighter separator */}
             <LicenseCard license={license} />
