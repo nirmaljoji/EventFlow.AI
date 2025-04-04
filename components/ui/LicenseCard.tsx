@@ -15,7 +15,7 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type LicenseCardProps = {
-  license: License;
+  license: License | any; // Support both License types
   className?: string;
   number?: number;
   actions?: ReactNode;
@@ -23,7 +23,7 @@ type LicenseCardProps = {
   onMouseLeave?: () => void;
   isExpanded?: boolean;
   onToggleExpand?: (id: string) => void;
-  onEditClick?: (license: License) => void;
+  onEditClick?: (license: License | any) => void;
   eventId?: string;
   onSubmit?: (formData: any) => Promise<void>;
 };
@@ -89,6 +89,13 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
   };
 
   const licenseTypeInfo = getLicenseTypeInfo();
+  
+  // Handle both issuing_authority and issuingAuthority formats
+  const authority = license.issuing_authority || license.issuingAuthority || "";
+  
+  // Handle both required_documents array and documents array formats
+  const requiredDocuments = license.required_documents || 
+    (license.documents?.map((doc: any) => typeof doc === 'string' ? doc : doc.name)) || [];
 
   return (
     <Card 
@@ -120,12 +127,14 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
           </div>
           
           <div className="flex flex-wrap gap-1.5 items-center">
-            <Badge 
-              variant="outline" 
-              className={cn("flex items-center gap-1 px-1.5 py-0.5 text-xs font-normal", getTypeColor())}
-            >
-              <span>{license.issuing_authority}</span>
-            </Badge>
+            {authority && (
+              <Badge 
+                variant="outline" 
+                className={cn("flex items-center gap-1 px-1.5 py-0.5 text-xs font-normal", getTypeColor())}
+              >
+                <span>{authority}</span>
+              </Badge>
+            )}
           </div>
 
           {/* Notes section */}
@@ -136,14 +145,14 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
           )}
           
           {/* Required documents section */}
-          {license.required_documents && license.required_documents.length > 0 && (
+          {requiredDocuments.length > 0 && (
             <div className="mt-2">
               <div className="flex items-center gap-1.5 text-xs mb-2">
                 <FileCheck className="w-3.5 h-3.5 text-blue-500" />
                 <span className="font-medium text-blue-700">Required Documents</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {license.required_documents.map((doc, idx: number) => {
+                {requiredDocuments.map((doc: string, idx: number) => {
                   // Rotate through different colors for document badges
                   const colors = [
                     "bg-blue-50 text-blue-700 border-blue-200",

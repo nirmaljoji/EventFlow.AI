@@ -1,4 +1,4 @@
-import { License } from "@/lib/langgraphtypes";
+import { License } from "@/lib/types";
 import { LicenseCard } from "@/components/ui/LicenseCard";
 import { X, Plus, FileCheck, Building, Utensils, ShieldCheck, Music, Truck } from "lucide-react";
 import { ActionButtons } from "./ActionButtons";
@@ -11,14 +11,43 @@ export type AddLicensesProps = {
 };
 
 export const AddLicenses = ({ args, status, handler }: AddLicensesProps) => {
+  const getIconForType = (type: string): React.ElementType => {
+    switch (type.toLowerCase()) {
+      case "venue":
+        return Building;
+      case "food & beverage":
+        return Utensils;
+      case "safety":
+        return ShieldCheck;
+      case "entertainment":
+        return Music;
+      case "logistics":
+        return Truck;
+      default:
+        return FileCheck;
+    }
+  };
+
   // Ensure licenses have all required properties
   const processedLicenses = args.licenses?.map((license: any) => {
+    const icon = getIconForType(license.type || "");
+    
     // Create a license object with all required properties
     return {
+      id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       name: license.name || "",
-      issuing_authority: license.issuing_authority || license.issuingAuthority || "",
+      type: license.type || "",
+      description: license.description || "",
+      status: "pending",
+      dueDate: new Date().toISOString().split('T')[0],
+      issuingAuthority: license.issuing_authority || "",
       cost: license.cost || 0,
-      required_documents: license.required_documents || [],
+      icon,
+      requiredFields: [],
+      documents: license.required_documents?.map((doc: string) => ({
+        name: doc,
+        uploaded: false
+      })) || [],
       notes: license.notes || ""
     } as License;
   });

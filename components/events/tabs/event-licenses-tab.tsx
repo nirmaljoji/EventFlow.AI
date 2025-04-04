@@ -111,8 +111,18 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
   useEffect(() => {
     if (hooksLicenses && hooksLicenses.length > 0) {
       const newLicenseItems = hooksLicenses.map(license => ({
-        ...license,
-        icon: getIconForLicenseType(license.type)
+        id: (Date.now() + Math.random()).toString(),
+        name: license.name,
+        type: license.type,
+        description: license.notes || "",
+        status: "pending" as const,
+        dueDate: new Date().toISOString().split('T')[0],
+        issuingAuthority: license.issuing_authority,
+        cost: license.cost,
+        icon: getIconForLicenseType(license.type),
+        requiredFields: [],
+        documents: license.required_documents?.map(doc => ({ name: doc, uploaded: false })) || [],
+        notes: license.notes
       }))
       
       setLocalLicenses(newLicenseItems)
