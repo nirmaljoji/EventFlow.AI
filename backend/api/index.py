@@ -35,7 +35,7 @@ sdk = CopilotKitRemoteEndpoint(
     agents=[
         LangGraphAgent(
             name="Food_Agent",
-            description="You are an Assistant to manage food related queries",
+            description="You are an Assistant to manage food related queries and analytics",
             agent = food_graph,
         ),
         LangGraphAgent(

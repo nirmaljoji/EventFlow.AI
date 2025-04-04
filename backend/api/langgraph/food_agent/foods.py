@@ -35,6 +35,9 @@ async def perform_foods_node(state: AgentState, config: RunnableConfig):
     # Initialize the foods list if it doesn't exist
     if not state.get("foods"):
         state["foods"] = []
+    
+    if not state.get("analytics"):
+        state["analytics"] = {}
 
     for tool_call in ai_message.tool_calls:
         action = tool_call["name"]
@@ -67,7 +70,7 @@ def handle_add_foods(state: AgentState, args: dict) -> AIMessage:
                 "status": "pending"
             }
             collection.update_one(
-                {"event_id": ObjectId('67e74b13ffdc7b65f3f181d5')},
+                {"event_id": ObjectId('67e744630b536e26e3fd3976')},
                 {
                     "$push": {"menu_items": menu_item},
                     "$inc": {
@@ -84,7 +87,6 @@ def handle_add_foods(state: AgentState, args: dict) -> AIMessage:
         return AIMessage(content=f"Successfully added the foods to database and state!")
     except Exception as e:
         return AIMessage(content=f"Failed to add foods: {str(e)}")
-
 
 # @tool
 # def delete_foods(trip_ids: List[str]):

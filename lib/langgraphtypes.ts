@@ -13,8 +13,17 @@ export type License = {
     type: string
     dietary: string;
   };
+
+  export type FoodAnalytics = {
+    menu_item_count: number;
+    dietary_options_count: number;
+    dietary_breakdown: Record<string, number>;
+    type_breakdown: Record<string, number>;
+  };
+  
   export type FoodAgentState = {
     foods: Food[];
+    analytics: FoodAnalytics;
   };
 
   export type LicensesAgentState = {

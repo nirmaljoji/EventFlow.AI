@@ -12,6 +12,7 @@ from .chat import chat_node
 from .search import search_node
 from .foods import perform_foods_node
 from .state import AgentState
+from .summary import summary_node
 
 # Route is responsible for determing the next node based on the last message. This
 # is needed because LangGraph does not automatically route to nodes, instead that
@@ -26,12 +27,12 @@ def route(state: AgentState):
         # foods_node or search_node based on the tool name.
         if ai_message.tool_calls:
             tool_name = ai_message.tool_calls[0]["name"]
-            if tool_name in ["add_foods"]:
+            if tool_name in ["add_foods",]:
                 return "foods_node"
             if tool_name in ["search_for_food"]:
                 return "search_node"
-            return "chat_node"
-    
+            if tool_name in ["search_for_summary"]:
+                return "summary_node"
     if messages and isinstance(messages[-1], ToolMessage):
         return "chat_node"
     
@@ -47,13 +48,16 @@ graph_builder.add_node("chat_node", chat_node)
 graph_builder.add_node("foods_node", foods_node)
 graph_builder.add_node("search_node", search_node)
 graph_builder.add_node("perform_foods_node", perform_foods_node)
+graph_builder.add_node("summary_node", summary_node)
 
-graph_builder.add_conditional_edges("chat_node", route, ["search_node", "chat_node", "foods_node", END])
+
+graph_builder.add_conditional_edges("chat_node", route, ["search_node", "chat_node", "foods_node", "summary_node", END])
 
 graph_builder.add_edge(START, "chat_node")
 graph_builder.add_edge("search_node", "chat_node")
 graph_builder.add_edge("perform_foods_node", "chat_node")
 graph_builder.add_edge("foods_node", "perform_foods_node")
+graph_builder.add_edge("summary_node", "chat_node")
 
 graph = graph_builder.compile(
     checkpointer=MemorySaver(),

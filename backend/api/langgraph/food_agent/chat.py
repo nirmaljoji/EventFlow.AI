@@ -9,6 +9,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from typing import cast
 from langchain_core.tools import tool
 from .search import search_for_food
+from .summary import search_for_summary
 
 import os
 import dotenv
@@ -24,6 +25,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
         [
             *tools,
             add_foods,
+            search_for_summary,
             # update_foods,
             # delete_foods,
             # select_trip,
@@ -36,6 +38,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     
     Call search_for_food when you need to find foods.
     Call foods_node when you need to add foods.
+    Call search_for_summary when you need to get a summary of the foods or any similar analytics information.
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.

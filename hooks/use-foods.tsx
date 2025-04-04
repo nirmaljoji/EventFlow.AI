@@ -38,6 +38,23 @@ export const FoodsProvider = ({ children }: { children: ReactNode }) => {
     renderAndWait: AddFoods
   });
 
+  useCopilotAction({
+    name: "search_for_summary",
+    description: "Search for a summary of the food items in the event",
+    parameters: [
+      {
+        name: "summary",
+        type: "object[]",
+        description: "The summary of the food items in the event",
+        required: true,
+      }
+    ],
+    render: (args) => {
+      console.log(args);
+      return <div>Summary</div>;
+    }
+  });
+
   const getFoodById = useMemo(() => (id: number) => {
     return state.foods?.find(food => food.id === id);
   }, [state.foods]);
