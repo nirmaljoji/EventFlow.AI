@@ -215,11 +215,6 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
     name: string
     type: string
     description: string
-    status: "missing"
-    dueDate: string
-    issuingAuthority: string
-    cost: string
-    notes: string
   }) => {
     setLoading(true)
 
@@ -229,19 +224,25 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
         throw new Error("No authentication token found")
       }
 
+      const enrichedData = {
+        ...formData,
+        status: "missing" as const,
+        dueDate: new Date().toISOString().split('T')[0],
+        issuingAuthority: "",
+        cost: "0",
+        notes: "",
+        eventId: event.id,
+        requiredFields: [],
+        documents: [],
+      }
+
       const response = await fetch(`${apiUrl}/api/events/${event.id}/licenses`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          eventId: event.id,
-          cost: parseFloat(formData.cost),
-          requiredFields: [],
-          documents: [],
-        }),
+        body: JSON.stringify(enrichedData),
       })
 
       if (!response.ok) {
@@ -301,10 +302,10 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
 
   // Handle opening the edit dialog
   const handleEditDialogOpen = (license: License) => {
-    setSelectedLicense(license)
-    // Form state is now managed within EditLicenseDialog
-    // We just need to set the selected license here
-    setIsEditLicenseOpen(true)
+    // Update the licenses array with the edited license
+    setLicenses(prevLicenses => 
+      prevLicenses.map(l => l.id === license.id ? { ...license, icon: getIconForLicenseType(license.type) } : l)
+    )
   }
 
   // Handle edit license form change
@@ -484,7 +485,12 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
             isExpanded={expandedLicense === license.id}
             onToggleExpand={(id) => setExpandedLicense(expandedLicense === id ? null : id)}
             onEditClick={handleEditDialogOpen}
-            // Pass other handlers if needed for Apply, Submit, Download buttons
+            eventId={event.id}
+            onSubmit={async (formData) => {
+              setSelectedLicense(license)
+              await handleEditLicenseSubmit(formData)
+              setSelectedLicense(null)
+            }}
           />
         )}
       />
