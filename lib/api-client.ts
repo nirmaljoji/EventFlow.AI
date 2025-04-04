@@ -102,6 +102,7 @@ export interface EventCreateData {
   endDate?: string;  // Make endDate optional
   attendees: number;
   description: string;
+  sustainable?: boolean; // Optional flag for sustainable event planning
 }
 
 // Events API

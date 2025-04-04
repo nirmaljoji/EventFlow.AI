@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Users, MoreHorizontal, Clock, Tag } from "lucide-react"
+import { CalendarDays, MapPin, Users, MoreHorizontal, Clock, Tag, Leaf } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -80,7 +80,14 @@ export function EventCard({ event, status }: EventCardProps) {
             </div>
 
             <div>
-              <h3 className="text-xl font-bold text-white drop-shadow-md">{event.title}</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xl font-bold text-white drop-shadow-md">{event.title}</h3>
+                {event.sustainable && (
+                  <div className="bg-green-500 rounded-full p-0.5">
+                    <Leaf className="h-4 w-4 text-white" />
+                  </div>
+                )}
+              </div>
               <Badge variant="outline" className="mt-1 bg-black/30 text-white border-white/30">
                 <Tag className="mr-1 h-3 w-3" />
                 {event.type || "Conference"}

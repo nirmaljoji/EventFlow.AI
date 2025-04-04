@@ -16,7 +16,7 @@ export const AddLicenses = ({ args, status, handler }: AddLicensesProps) => {
       <h1 className="text-sm mb-3">The following licenses will be added:</h1>
       <div className="space-y-2"> {/* Reduced spacing between cards */}
         {args.licenses?.map((license: License, index: number) => (
-          <div key={`${license.issuing_authority}-${index}`}>
+          <div key={`${license.name}-${index}`}>
             {index > 0 && <div className="border-t border-border/30 my-2" />} {/* Lighter separator */}
             <LicenseCard license={license} />
           </div>

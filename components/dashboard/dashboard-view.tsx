@@ -92,6 +92,7 @@ export default function DashboardView() {
                 attendees: event.attendees,
                 organizer: "EventFlow.AI", // Default organizer
                 coverImage: "/placeholder.svg?height=128&width=384&text=Event",
+                sustainable: event.sustainable || false,
               };
             } catch (error) {
               console.error("Error transforming event:", error, event);
@@ -106,6 +107,7 @@ export default function DashboardView() {
                 attendees: 0,
                 organizer: "EventFlow.AI",
                 coverImage: "/placeholder.svg?height=128&width=384&text=Error",
+                sustainable: false,
               };
             }
           });

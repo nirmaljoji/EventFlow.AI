@@ -1,4 +1,5 @@
 export type License = {
+    name: string;
     issuing_authority: string;
     cost: number;
     required_documents: string[];

@@ -10,6 +10,7 @@ export interface Event {
   organizer: string
   type?: string
   budget?: number
+  sustainable?: boolean
 }
 
 // Remove duplicate License type since it's defined as an interface below

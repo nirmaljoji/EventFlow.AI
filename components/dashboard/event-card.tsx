@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Users, MoreHorizontal } from "lucide-react"
+import { CalendarDays, MapPin, Users, MoreHorizontal, Leaf } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -79,7 +79,14 @@ export function EventCard({ event, status }: EventCardProps) {
               </DropdownMenu>
             </div>
 
-            <h3 className="text-xl font-bold text-white drop-shadow-md">{event.title}</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-xl font-bold text-white drop-shadow-md">{event.title}</h3>
+              {event.sustainable && (
+                <div className="bg-green-500 rounded-full p-0.5">
+                  <Leaf className="h-4 w-4 text-white" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
