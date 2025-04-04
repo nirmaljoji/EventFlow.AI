@@ -14,12 +14,6 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Pydantic models for request validation
-class RequiredField(BaseModel):
-    name: str
-    type: str
-    required: bool
-    description: Optional[str] = None
-
 class Document(BaseModel):
     name: str
     uploaded: bool
@@ -32,32 +26,22 @@ class LicenseCreate(BaseModel):
     status: str
     dueDate: datetime
     issuingAuthority: str
-    applicationDate: Optional[datetime] = None
-    approvalDate: Optional[datetime] = None
-    rejectionReason: Optional[str] = None
     cost: float
-    requiredFields: List[RequiredField]
-    documents: List[Document]
+    documents: List[str]
     notes: Optional[str] = None
     eventId: str
 
 class LicenseResponse(BaseModel):
-    id: str
     name: str
     type: str
     description: str
     status: str
     dueDate: datetime
     issuingAuthority: str
-    applicationDate: Optional[datetime]
-    approvalDate: Optional[datetime]
-    rejectionReason: Optional[str]
     cost: float
-    requiredFields: List[RequiredField]
-    documents: List[Document]
-    notes: Optional[str]
+    documents: List[str]
+    notes: Optional[str] = None
     eventId: str
-    createdAt: datetime
 
     class Config:
         orm_mode = True

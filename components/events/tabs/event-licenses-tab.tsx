@@ -68,6 +68,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
   useEffect(() => {
     const fetchLicenses = async () => {
       try {
+        console.log("Fetching licenses for event:", event.id)
         setLoading(true)
         // Get token from localStorage
         const token = localStorage.getItem('token')
@@ -75,23 +76,27 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
           throw new Error('No authentication token found')
         }
 
+        console.log("Event ID:", event.id)
+
         const response = await fetch(`${apiUrl}/api/events/${event.id}/licenses`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         })
+
+        console.log("Response:", response)
         if (!response.ok) {
           throw new Error('Failed to fetch licenses')
         }
         const data = await response.json()
-        
+        console.log("Fetched licenses:", data)
         // Map backend data to frontend License type with icons
         const processedLicenses = data.licenses.map((license: any) => ({
           ...license,
           icon: getIconForLicenseType(license.type)
         }))
-        
+        console.log("Processed licenses:", processedLicenses) 
         setLicenses(processedLicenses)
         setError(null)
       } catch (err) {
@@ -121,7 +126,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
         cost: license.cost,
         icon: getIconForLicenseType(license.type),
         requiredFields: [],
-        documents: license.required_documents?.map(doc => ({ name: doc, uploaded: false })) || [],
+        documents: license.required_documents || [],
         notes: license.notes
       }))
       
@@ -351,7 +356,7 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
     issuingAuthority: string
     cost: string
     notes: string
-    documents: { name: string; uploaded: boolean; url?: string }[]
+    documents: string[]
   }) => {
     if (!selectedLicense) return
 
@@ -379,7 +384,6 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
           issuingAuthority: formData.issuingAuthority,
           cost: parseFloat(formData.cost),
           notes: formData.notes,
-          requiredFields: selectedLicense.requiredFields,
           documents: formData.documents,
           eventId: event.id,
         }),
@@ -519,7 +523,11 @@ export function EventLicensesTab({ event }: EventLicensesTabProps) {
             eventId={event.id}
             onSubmit={async (formData) => {
               setSelectedLicense(license)
-              await handleEditLicenseSubmit(formData)
+              const convertedFormData = {
+                ...formData,
+                documents: formData.documents // Documents are now strings, no mapping needed
+              }
+              await handleEditLicenseSubmit(convertedFormData)
               setSelectedLicense(null)
             }}
           />

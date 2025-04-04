@@ -31,11 +31,7 @@ interface EditLicenseDialogProps {
     issuingAuthority: string
     cost: string
     notes: string
-    documents: {
-      name: string
-      uploaded: boolean
-      url?: string
-    }[]
+    documents: string[]
   }) => Promise<void>
 }
 
@@ -49,7 +45,7 @@ export function EditLicenseDialog({ open, onOpenChange, license, onSubmit }: Edi
     issuingAuthority: "",
     cost: "",
     notes: "",
-    documents: [] as { name: string; uploaded: boolean; url?: string }[],
+    documents: [""],
   })
   const [loading, setLoading] = useState(false)
 
@@ -65,7 +61,7 @@ export function EditLicenseDialog({ open, onOpenChange, license, onSubmit }: Edi
         issuingAuthority: license.issuingAuthority,
         cost: license.cost.toString(),
         notes: license.notes || "",
-        documents: [...license.documents]
+        documents: license.documents.map(doc => typeof doc === 'string' ? doc : doc.name)
       })
     }
   }, [license])
@@ -78,7 +74,7 @@ export function EditLicenseDialog({ open, onOpenChange, license, onSubmit }: Edi
   const handleAddDocument = () => {
     setFormData(prev => ({
       ...prev,
-      documents: [...prev.documents, { name: "", uploaded: false }]
+      documents: [...prev.documents, ""]
     }))
   }
 
@@ -92,10 +88,7 @@ export function EditLicenseDialog({ open, onOpenChange, license, onSubmit }: Edi
   const handleDocumentChange = (index: number, field: string, value: any) => {
     setFormData(prev => {
       const newDocuments = [...prev.documents]
-      newDocuments[index] = {
-        ...newDocuments[index],
-        [field]: value
-      }
+      newDocuments[index] = value
       return {
         ...prev,
         documents: newDocuments
@@ -273,19 +266,19 @@ export function EditLicenseDialog({ open, onOpenChange, license, onSubmit }: Edi
                       <div className="flex-1">
                         <Input
                           placeholder="Document name"
-                          value={doc.name}
+                          value={doc}
                           onChange={(e) => handleDocumentChange(index, 'name', e.target.value)}
                           className="mb-1"
                         />
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex items-center gap-1">
-                            <input
+                            {/* <input
                               type="checkbox"
                               id={`uploaded-${index}`}
                               checked={doc.uploaded}
                               onChange={(e) => handleDocumentChange(index, 'uploaded', e.target.checked)}
                               className="h-4 w-4 rounded border-gray-300 text-primary"
-                            />
+                            /> */}
                             <label htmlFor={`uploaded-${index}`} className="text-xs">
                               Marked as uploaded
                             </label>
