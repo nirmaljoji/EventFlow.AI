@@ -21,6 +21,7 @@ class EventCreate(BaseModel):
     endDate: Optional[datetime] = None
     attendees: int
     description: str
+    sustainable: bool
 
 class EventResponse(BaseModel):
     id: str
@@ -85,6 +86,7 @@ def create_event(event: EventCreate, user_id: str = Depends(get_current_user)):
             "endDate": end_date,
             "attendees": event.attendees,
             "description": event.description,
+            "sustainable": event.sustainable,
             "createdAt": datetime.now()
         }
         
@@ -186,6 +188,7 @@ def update_event(
             "endDate": end_date,
             "attendees": event_data.attendees,
             "description": event_data.description,
+            "sustainable": event_data.sustainable,
             "updatedAt": datetime.now()
         }
         

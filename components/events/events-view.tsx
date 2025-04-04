@@ -43,6 +43,7 @@ interface Event {
   attendees: number
   description: string
   type?: string
+  sustainable?: boolean
 }
 
 export default function EventsView() {
@@ -327,7 +328,8 @@ export default function EventsView() {
                         ...event,
                         title: event.eventName,
                         startDate: event.dateTime,
-                        organizer: "You" // Default organizer
+                        organizer: "You", // Default organizer
+                        sustainable: event.sustainable || false
                       }} 
                       status={status} 
                     />
