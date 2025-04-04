@@ -39,6 +39,7 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     Call search_for_food when you need to find foods.
     Call foods_node when you need to add foods.
     Call search_for_summary when you need to get a summary of the foods or any similar analytics information.
+    Important: Make sure that search_for_food is called before foods_node is called, and make sure that foods_node is being called if and when the search_for_food tool is called.
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.
