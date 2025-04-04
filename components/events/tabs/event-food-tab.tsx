@@ -173,7 +173,7 @@ export function EventFoodTab({ event }: EventFoodTabProps) {
         name: food.name,
         type: food.type,
         dietary: food.dietary,
-        status: 'Approved'
+        status: 'Pending'
       }))
       
       setLocalFoods(newMenuItems)
