@@ -92,7 +92,7 @@ async def search_node(state: AgentState, config: RunnableConfig):
     query = ai_message.tool_calls[0]["args"]["query"]
 
 
-    model = ChatOpenAI(model="gpt-4o", api_key=os.environ["OPENAI_API_KEY"])
+    model = ChatOpenAI(model="gpt-4o", api_key="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")
     model_with_structure = model.with_structured_output(FoodList)
     tool_msg = model_with_structure.invoke(query, config=custom_config)
     # Convert structured output to JSON format

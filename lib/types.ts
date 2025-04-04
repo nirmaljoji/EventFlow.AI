@@ -12,20 +12,21 @@ export interface Event {
   budget?: number
 }
 
-  
 export type Food = {
   id: number;
   name: string;
   type: string
-  dietary: string
+  dietary: string;
 };
 
+// Remove duplicate License type since it's defined as an interface below
 // export type FoodList = {
 //   items: Food[];
 // };
 
 export type AgentState = {
   foods: Food[];
+  licenses: License[];
 };
 
 

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { CopilotChat } from "@copilotkit/react-ui"
 import "@copilotkit/react-ui/styles.css"
-import { useCoAgent, useCoAgentStateRender } from '@copilotkit/react-core';
+import { useCoAgent } from '@copilotkit/react-core';
 // Import styles directly in the component to avoid CSS module issues
 import { Bot, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,11 +12,11 @@ import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { FoodsProvider } from "@/hooks/use-foods"
 import { useCopilotAction } from "@copilotkit/react-core";
-import { AddFoods } from "@/components/ai-chat/chat-sidebar/components/AddFoods";
-import { FoodCard } from "@/components/ui/FoodCard";
+import { AddLicenses } from "@/components/ai-chat/chat-sidebar/components/AddLicenses";
 import { AgentState } from "@/lib/types";
 
 import { MapPin, Info } from "lucide-react";
+import { LicensesProvider } from "@/hooks/use-licenses";
 
 
 interface ChatSidebarProps {
@@ -91,17 +91,18 @@ export function ChatSidebar({ children }: ChatSidebarProps) {
                 }}>
                   <div className="h-full flex flex-col">
                       <TooltipProvider>
-                        <FoodsProvider>
-                        <CopilotChat
-                            labels={{
-                              title: "EventFlow Assistant",
-                              initial: "Hi! 👋 How can I help you plan your event today?",
-                            }}
-                            className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
-                          />
-                        </FoodsProvider>
+                        {/* <FoodsProvider> */}
+                          <LicensesProvider>
+                            <CopilotChat
+                              labels={{
+                                title: "EventFlow Assistant",
+                                initial: "Hi! 👋 How can I help you plan your event today?",
+                              }}
+                              className="bg-background border-none z-50 h-full [&_.copilotKitInputContainer]:h-auto [&_.copilotKitInput_textarea]:min-h-[40px] [&_.copilotKitInput_textarea]:max-h-[120px] [&_.copilotKitInput_textarea]:resize-none"
+                            />
+                          </LicensesProvider>
+                        {/* </FoodsProvider> */}
                       </TooltipProvider>
-
                   </div>
                 </div>
               </div>

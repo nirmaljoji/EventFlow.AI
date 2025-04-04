@@ -1,14 +1,15 @@
+# pylint: disable=all
 import json
 from .state import AgentState
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
-from .search import search_for_food
-from .foods import add_foods
+from .search import search_for_licenses
+from .licenses import add_licenses
 from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import AIMessage, ToolMessage
 from typing import cast
 from langchain_core.tools import tool
-from .search import search_for_food
+from .search import search_for_licenses
 
 import os
 import dotenv
@@ -16,26 +17,30 @@ dotenv.load_dotenv()
 
 
 llm = ChatOpenAI(model="gpt-4o", api_key="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")
-tools = [search_for_food]
+tools = [search_for_licenses]
 
 async def chat_node(state: AgentState, config: RunnableConfig):
-    """Handle Food operations"""
+    """Handle License operations"""
     llm_with_tools = llm.bind_tools(
         [
             *tools,
-            add_foods,
-            # update_foods,
-            # delete_foods,
+            add_licenses,
+            # update_licenses,
+            # delete_licenses,
             # select_trip,
         ],
         parallel_tool_calls=False,
     )
 
     system_message = f"""
-    You are an agent that plans foods and helps the user with planning and managing their foods.
+    You are an agent that plans licenses and helps the user with planning and managing their licenses.
     
-    Call search_for_food when you need to find foods.
-    Call foods_node when you need to add foods.
+    Call search_for_licenses when you need to find licenses.
+    Call add_licenses when you need to add licenses.
+    
+    When the user asks to see license information or searches for licenses, first use search_for_licenses.
+    After showing the search results, ask if they want to add any of the licenses you found.
+    When they say yes, call the add_licenses function without parameters to add all the licenses from your search results.
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.
@@ -51,5 +56,5 @@ async def chat_node(state: AgentState, config: RunnableConfig):
 
     return {
         "messages": [response],
-        "foods": state.get("foods", [])
+        "licenses": state.get("licenses", [])
     }
