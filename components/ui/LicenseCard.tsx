@@ -110,7 +110,14 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
         <div className="flex-grow">
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-sm font-medium leading-tight">{license.name}</h3>
-            {actions && <div className="flex-shrink-0">{actions}</div>}
+            <div className="flex items-center gap-1">
+              {license.cost && (
+                <span className="text-xs font-medium px-2 py-0.5 bg-green-50 text-green-700 rounded-full border border-green-200">
+                  ${license.cost}
+                </span>
+              )}
+              {actions && <div className="flex-shrink-0">{actions}</div>}
+            </div>
           </div>
           
           <div className="flex flex-wrap gap-1.5 items-center">
@@ -121,6 +128,46 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
               <span>{license.issuing_authority}</span>
             </Badge>
           </div>
+
+                    {/* Notes section */}
+                    {license.notes && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              <p className="line-clamp-2">{license.notes}</p>
+            </div>
+          )}
+          
+          {/* Required documents section */}
+          {license.required_documents && license.required_documents.length > 0 && (
+            <div className="mt-2">
+              <div className="flex items-center gap-1.5 text-xs mb-2">
+                <FileCheck className="w-3.5 h-3.5 text-blue-500" />
+                <span className="font-medium text-blue-700">Required Documents</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {license.required_documents.map((doc, idx) => {
+                  // Rotate through different colors for document badges
+                  const colors = [
+                    "bg-blue-50 text-blue-700 border-blue-200",
+                    "bg-purple-50 text-purple-700 border-purple-200",
+                    "bg-pink-50 text-pink-700 border-pink-200",
+                    "bg-emerald-50 text-emerald-700 border-emerald-200",
+                    "bg-amber-50 text-amber-700 border-amber-200"
+                  ];
+                  const colorClass = colors[idx % colors.length];
+                  
+                  return (
+                    <Badge 
+                      key={idx}
+                      variant="outline" 
+                      className={`px-2 py-1 text-xs font-medium ${colorClass} shadow-sm`}
+                    >
+                      {doc}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
