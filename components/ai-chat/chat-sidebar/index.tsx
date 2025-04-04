@@ -13,7 +13,6 @@ import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { FoodsProvider } from "@/hooks/use-foods"
 import { useCopilotAction } from "@copilotkit/react-core";
 import { AddLicenses } from "@/components/ai-chat/chat-sidebar/components/AddLicenses";
-import { AgentState } from "@/lib/types";
 
 import { MapPin, Info } from "lucide-react";
 import { LicensesProvider } from "@/hooks/use-licenses";

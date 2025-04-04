@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDistanceToNow } from "date-fns"
 import { useFoods } from "@/hooks/use-foods"
-import { Food } from "@/lib/types"
 
 // Define types based on your API
 interface MenuItem {

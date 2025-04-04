@@ -1,6 +1,6 @@
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
 import { createContext, useContext, ReactNode } from "react";
-import { License, AgentState } from "@/lib/langgraphtypes";
+import { License, LicensesAgentState } from "@/lib/langgraphtypes";
 import { AddLicenses } from "@/components/ai-chat/chat-sidebar/components/AddLicenses";
 import { useToast } from "@/components/ui/use-toast";
 import { FileCheck, Building, Utensils, ShieldCheck, Music, Truck } from "lucide-react";
@@ -13,8 +13,8 @@ type LicensesContextType = {
 const LicensesContext = createContext<LicensesContextType | undefined>(undefined);
 
 export const LicensesProvider = ({ children }: { children: ReactNode }) => {
-  const { state, setState } = useCoAgent<AgentState>({
-    name: "eventflow_agent",
+  const { state, setState } = useCoAgent<LicensesAgentState>({
+    name: "License_Agent",
     initialState: {
       licenses: []
     }

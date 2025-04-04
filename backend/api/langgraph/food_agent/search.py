@@ -98,20 +98,20 @@ async def search_node(state: AgentState, config: RunnableConfig):
     # Convert structured output to JSON format
     food_list = []
     for i, food in enumerate(tool_msg.items):
-
         food_list.append({
-            "id": i,
+            "id": i, # Consider using a more persistent ID if needed later
             "name": food.name,
             "type": food.type,
             "dietary": food.dietary
         })
 
-    
-    json_output = json.dumps(food_list)
+    # Serialize the list to a JSON string for the ToolMessage content
+    tool_message_content = json.dumps(food_list)
 
     state["messages"].append(ToolMessage(
         tool_call_id=ai_message.tool_calls[0]["id"],
-        content=f"Added the following search results: {food_list}"
+        # Use the JSON string as content
+        content=tool_message_content
     ))
     await copilotkit_emit_state(custom_config, state)
 

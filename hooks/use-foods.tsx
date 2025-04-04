@@ -2,7 +2,7 @@
 
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
 import { createContext, useContext, ReactNode, useMemo } from "react";
-import { Food, AgentState } from "@/lib/types";
+import { Food, FoodAgentState } from "@/lib/langgraphtypes";
 import { AddFoods } from "@/components/ai-chat/chat-sidebar/components/AddFoods";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -15,8 +15,8 @@ type FoodsContextType = {
 const FoodsContext = createContext<FoodsContextType | undefined>(undefined);
 
 export const FoodsProvider = ({ children }: { children: ReactNode }) => {
-  const { state, setState } = useCoAgent<AgentState>({
-    name: "eventflow_agent",
+  const { state, setState } = useCoAgent<FoodAgentState>({
+    name: "Food_Agent",
     initialState: {
       foods: []
     }

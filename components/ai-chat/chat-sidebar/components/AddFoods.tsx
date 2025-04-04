@@ -1,4 +1,4 @@
-import { Food } from "@/lib/types";
+import { Food } from "@/lib/langgraphtypes";
 import { FoodCard } from "@/components/ui/FoodCard";
 import { X, Plus } from "lucide-react";
 import { ActionButtons } from "./ActionButtons";

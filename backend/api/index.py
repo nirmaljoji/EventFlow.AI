@@ -9,8 +9,9 @@ from contextlib import asynccontextmanager
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitRemoteEndpoint
 from copilotkit import LangGraphAgent
-# from .langgraph.food_agent.agent import graph as food_graph
-from .langgraph.license_agent.agent import graph as license_graph
+from .langgraph.license_agent.agent import graph as licenses_graph
+from .langgraph.food_agent.agent import graph as food_graph
+
 
 
 
@@ -33,9 +34,14 @@ app.add_middleware(
 sdk = CopilotKitRemoteEndpoint(
     agents=[
         LangGraphAgent(
-            name="eventflow_agent",
-            description="You are an Assistnat to manage events",
-            agent = license_graph
+            name="Food_Agent",
+            description="You are an Assistant to manage food related queries",
+            agent = food_graph,
+        ),
+        LangGraphAgent(
+            name="License_Agent",
+            description="You are an Assistant to manage License related queries",
+            agent = licenses_graph,
         )
     ],
 )

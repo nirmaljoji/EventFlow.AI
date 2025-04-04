@@ -90,9 +90,13 @@ async def search_node(state: AgentState, config: RunnableConfig):
     #     state["license_list"] = []
     # state["license_list"].extend(license_list)
 
+    # Serialize the list to a JSON string for the ToolMessage content
+    tool_message_content = json.dumps(license_list)
+
     state["messages"].append(ToolMessage(
         tool_call_id=ai_message.tool_calls[0]["id"],
-        content=f"Added the following search results: {license_list}"
+        # Use the JSON string as content
+        content=tool_message_content
     ))
     
     await copilotkit_emit_state(custom_config, state)

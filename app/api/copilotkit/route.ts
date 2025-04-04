@@ -1,12 +1,18 @@
 import {
   CopilotRuntime,
-  ExperimentalEmptyAdapter,
+  EmptyAdapter,
+  OpenAIAdapter,
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
+import { OpenAI } from "openai";
 import { NextRequest } from "next/server";
+
  
 // You can use any service adapter here for multi-agent support.
-const serviceAdapter = new ExperimentalEmptyAdapter();
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const serviceAdapter = new OpenAIAdapter({openai});
  
 const runtime = new CopilotRuntime({
   remoteEndpoints: [
