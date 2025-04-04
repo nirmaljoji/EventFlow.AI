@@ -37,10 +37,6 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     
     Call search_for_licenses when you need to find licenses.
     Call add_licenses when you need to add licenses.
-    
-    When the user asks to see license information or searches for licenses, first use search_for_licenses.
-    After showing the search results, ask if they want to add any of the licenses you found.
-    When they say yes, call the add_licenses function without parameters to add all the licenses from your search results.
     """
 
     # calling ainvoke instead of invoke is essential to get streaming to work properly on tool calls.
