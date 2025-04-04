@@ -22,6 +22,7 @@ from langchain.schema import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
 class License(BaseModel):
     """A License."""
+    name: str = Field(description = "The name of the license")
     issuing_authority: str = Field(description = "The name of the issuing authority")
     cost: float = Field(description = "The cost of the license")
     required_documents: List[str] = Field(description = "The documents required to obtain the license")
@@ -72,7 +73,7 @@ async def search_node(state: AgentState, config: RunnableConfig):
         documents = [{"name": doc, "uploaded": False} for doc in license.required_documents]
         license_list.append({
             "id": str(i),
-            "name": license.issuing_authority,
+            "name": license.name,
             "type": "License",
             "description": license.notes,
             "status": "pending",

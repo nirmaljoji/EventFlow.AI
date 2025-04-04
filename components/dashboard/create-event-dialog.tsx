@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { CalendarIcon, MapPinIcon, UsersIcon } from "lucide-react"
+import { CalendarIcon, MapPinIcon, UsersIcon, Leaf } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { toast } from "@/components/ui/use-toast"
 import { eventsApi, EventCreateData } from "@/lib/api-client"
+import { Switch } from "@/components/ui/switch"
 
 interface CreateEventDialogProps {
   open: boolean
@@ -33,6 +34,7 @@ export function CreateEventDialog({ open, onOpenChange, onEventCreated }: Create
   const [startDate, setStartDate] = useState<Date>()
   const [endDate, setEndDate] = useState<Date>()
   const [loading, setLoading] = useState(false)
+  const [isSustainable, setIsSustainable] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -65,7 +67,8 @@ export function CreateEventDialog({ open, onOpenChange, onEventCreated }: Create
         location: formData.location,
         dateTime: startDate.toISOString(),
         attendees: parseInt(formData.attendees) || 0,
-        description: formData.description
+        description: formData.description,
+        sustainable: isSustainable
       }
       
       // Add endDate if it's set
@@ -90,6 +93,7 @@ export function CreateEventDialog({ open, onOpenChange, onEventCreated }: Create
         })
         setStartDate(undefined)
         setEndDate(undefined)
+        setIsSustainable(false)
         
         // Close dialog
         onOpenChange(false)
@@ -217,6 +221,26 @@ export function CreateEventDialog({ open, onOpenChange, onEventCreated }: Create
                 onChange={handleChange}
                 placeholder="Provide details about your event..." 
                 className="min-h-[100px]" 
+              />
+            </div>
+            
+            <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
+              <div className="flex items-center space-x-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-50">
+                  <Leaf className="h-5 w-5 text-green-500" />
+                </div>
+                <div>
+                  <Label htmlFor="sustainable-mode" className="font-medium">
+                    Sustainable Event Planning
+                  </Label>
+                  <p className="text-sm text-muted-foreground">Reduce environmental impact with eco-friendly options</p>
+                </div>
+              </div>
+              <Switch
+                id="sustainable-mode"
+                checked={isSustainable}
+                onCheckedChange={setIsSustainable}
+                className="data-[state=checked]:bg-green-500"
               />
             </div>
           </div>

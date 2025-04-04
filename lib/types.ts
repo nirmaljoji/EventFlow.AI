@@ -10,6 +10,7 @@ export interface Event {
   organizer: string
   type?: string
   budget?: number
+  sustainable?: boolean
 }
 
 export type Food = {

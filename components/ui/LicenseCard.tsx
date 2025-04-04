@@ -25,7 +25,7 @@ type LicenseCardProps = {
 
 export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, className, number }: LicenseCardProps) {
   const getLicenseTypeIcon = () => {
-    switch(license.issuing_authority?.toLowerCase()) {
+    switch(license.name?.toLowerCase()) {
       case "Venue":
         return <Leaf className="w-3 h-3" />;
       case "Food & Beverage":
@@ -109,7 +109,7 @@ export function LicenseCard({ license, actions, onMouseEnter, onMouseLeave, clas
         
         <div className="flex-grow">
           <div className="flex justify-between items-center mb-1.5">
-            <h3 className="text-sm font-medium leading-tight">{license.issuing_authority}</h3>
+            <h3 className="text-sm font-medium leading-tight">{license.name}</h3>
             {actions && <div className="flex-shrink-0">{actions}</div>}
           </div>
           
