@@ -6,6 +6,9 @@ from langchain_core.tools import tool
 from .state import AgentState, License, LicenseList
 from copilotkit.langgraph import copilotkit_emit_message
 from .state import AgentState, License, LicenseList
+from bson import ObjectId
+from datetime import datetime
+from ...database.mongodb import MongoDB
 
 async def licenses_node(state: AgentState, config: RunnableConfig): # pylint: disable=unused-argument
     """
@@ -51,6 +54,31 @@ def add_licenses(licenses: List[License]):
 
 def handle_add_licenses(state: AgentState, args: dict) -> AIMessage:
     licenses = args.get("licenses", [])
-    print("Adding licenses", licenses)
-    state["licenses"].extend(licenses)
-    return AIMessage(content=f"Successfully added the licenses!")
+    
+    try:
+        # Get MongoDB collection
+        collection = MongoDB.client.eventflow_db.licenses
+        
+        # Store each license item in MongoDB
+        for license in licenses:
+            print("license", license)
+            license_data = {
+                "name": license.get("name", ""),
+                "type": license.get("type", ""),
+                "description": license.get("description", ""),
+                "status": "pending",
+                "dueDate": license.get("dueDate", datetime.utcnow()),
+                "issuingAuthority": license.get("issuing_authority", ""),
+                "cost": license.get("cost", 0.0),
+                "documents": license.get("required_documents", []),
+                "notes": license.get("notes", ""),
+                "eventId":  str(ObjectId('67ef931b666a4288e98621d7'))  # Default event ID
+            }
+            
+            collection.insert_one(license_data)
+        
+        # Update state after successful DB operation
+        state["licenses"].extend(licenses)
+        return AIMessage(content=f"Successfully added the licenses to database and state!")
+    except Exception as e:
+        return AIMessage(content=f"Failed to add licenses: {str(e)}")

@@ -1,5 +1,7 @@
+"use client";
+
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useMemo } from "react";
 import { License, LicensesAgentState } from "@/lib/langgraphtypes";
 import { AddLicenses } from "@/components/ai-chat/chat-sidebar/components/AddLicenses";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,7 +9,8 @@ import { FileCheck, Building, Utensils, ShieldCheck, Music, Truck } from "lucide
 
 type LicensesContextType = {
   licenses: License[];
-  addLicenses: (licenses: License[]) => Promise<void>;
+  addLicenses: (licenses: License[]) => Promise<License[]>;
+  getLicenseById: (id: string) => License | undefined;
 };
 
 const LicensesContext = createContext<LicensesContextType | undefined>(undefined);
@@ -36,29 +39,46 @@ export const LicensesProvider = ({ children }: { children: ReactNode }) => {
     renderAndWait: AddLicenses
   });
 
+  const getLicenseById = useMemo(() => (id: string) => {
+    return state.licenses?.find((license: License & { id?: string }) => license.id === id);
+  }, [state.licenses]);
 
   const addLicenses = async (licenses_arr: License[]) => {
-    console.log("Adding licenses", licenses_arr);
     try {
-
-      setState({ ...state, licenses: [...(state.licenses || []), ...licenses_arr] });
+      const newLicenses = licenses_arr.map(license => ({
+        ...license,
+        id: (Date.now() + Math.floor(Math.random() * 1000)).toString() // Generate string ID
+      }));
+      
+      setState(prev => {
+        if (!prev) return { licenses: newLicenses, foods: [] };
+        return {
+          ...prev,
+          licenses: [...(prev.licenses || []), ...newLicenses]
+        };
+      });
+      
       toast({
         title: "Success",
         description: "Licenses have been added to the event."
       });
+      
+      return newLicenses;
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
         description: "Failed to add licenses. Please try again."
       });
+      throw error;
     }
   };
 
   return (
     <LicensesContext.Provider value={{ 
-      licenses: state.licenses || { items: [] }, 
-      addLicenses
+      licenses: state.licenses || [],
+      addLicenses,
+      getLicenseById
     }}>
       {children}
     </LicensesContext.Provider>

@@ -47,7 +47,7 @@ interface LicenseCardProps {
     issuingAuthority: string
     cost: string
     notes: string
-    documents: { name: string; uploaded: boolean; url?: string }[]
+    documents: string[]
   }) => Promise<void>
 }
 
@@ -115,10 +115,9 @@ export function LicenseCard({
         issuingAuthority: editedLicense.issuingAuthority,
         cost: parseFloat(editedLicense.cost.toString()), // Send as number, not string
         notes: editedLicense.notes || "",
-        documents: editedLicense.documents,
+        documents: editedLicense.documents || [],
         eventId: eventId,
         // Required fields in LicenseCreate but may not be present in the frontend model
-        requiredFields: editedLicense.requiredFields || [],
         applicationDate: editedLicense.applicationDate,
         approvalDate: editedLicense.approvalDate,
         rejectionReason: editedLicense.rejectionReason
@@ -146,7 +145,8 @@ export function LicenseCard({
       // Call onSubmit to update parent state with string cost for form compatibility
       const parentFormData = {
         ...formData,
-        cost: formData.cost.toString()
+        cost: formData.cost.toString(),
+        documents: formData.documents // No mapping needed since documents is already a string array
       }
       await onSubmit(parentFormData)
       setIsEditing(false)
@@ -165,82 +165,6 @@ export function LicenseCard({
       })
     } finally {
       setLoading(false)
-    }
-  }
-
-  // Function to update document status
-  const handleDocumentStatusChange = async (index: number, checked: boolean) => {
-    try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
-
-      // Create a new documents array with the updated status
-      const newDocs = [...editedLicense.documents]
-      newDocs[index] = { ...newDocs[index], uploaded: checked }
-      
-      // Update local state optimistically
-      setEditedLicense({ ...editedLicense, documents: newDocs })
-
-      // Prepare API payload - ensure all fields required by LicenseCreate model are included
-      const formData = {
-        name: editedLicense.name,
-        type: editedLicense.type,
-        description: editedLicense.description,
-        status: editedLicense.status,
-        dueDate: editedLicense.dueDate,
-        issuingAuthority: editedLicense.issuingAuthority,
-        cost: parseFloat(editedLicense.cost.toString()), // Send as number, not string
-        notes: editedLicense.notes || "",
-        documents: newDocs,
-        eventId: eventId,
-        // Required fields in LicenseCreate but may not be present in the frontend model
-        requiredFields: editedLicense.requiredFields || [],
-        applicationDate: editedLicense.applicationDate,
-        approvalDate: editedLicense.approvalDate,
-        rejectionReason: editedLicense.rejectionReason
-      }
-
-      console.log('Making API call to:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/events/${eventId}/licenses/${license.id}`)
-      console.log('Payload:', JSON.stringify(formData))
-
-      // Make API call
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/events/${eventId}/licenses/${license.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (!response.ok) {
-        const errorData = await response.text()
-        console.error('API error response:', response.status, errorData)
-        throw new Error(`Failed to update document status: ${response.status} ${errorData}`)
-      }
-
-      // Update parent state
-      onEditClick({ ...editedLicense, documents: newDocs, icon: license.icon })
-      
-      toast({
-        title: "Success",
-        description: "Document status updated",
-      })
-    } catch (error) {
-      console.error("Error updating document status:", error)
-      
-      // Revert the change in case of error
-      const revertedDocs = [...editedLicense.documents]
-      revertedDocs[index] = { ...revertedDocs[index], uploaded: !checked }
-      setEditedLicense({ ...editedLicense, documents: revertedDocs })
-      
-      toast({
-        title: "Error",
-        description: "Failed to update document status. Please try again.",
-        variant: "destructive",
-      })
     }
   }
 
@@ -404,32 +328,20 @@ export function LicenseCard({
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Required Documents</h4>
                   <span className="text-sm text-muted-foreground">
-                    {editedLicense.documents.filter(doc => doc.uploaded).length} / {editedLicense.documents.length}
+                    {editedLicense.documents ? editedLicense.documents.length : 0} Documents
                   </span>
                 </div>
                 <div className="rounded-md border p-3">
                   <div className="space-y-3">
-                    {editedLicense.documents.map((doc, index) => (
+                    {editedLicense.documents && editedLicense.documents.map((doc, index) => (
                       <div key={index} className="flex items-center gap-3">
-                        <Checkbox
-                          checked={doc.uploaded}
-                          onCheckedChange={(checked) => {
-                            if (isEditing) {
-                              const newDocs = [...editedLicense.documents]
-                              newDocs[index] = { ...doc, uploaded: checked as boolean }
-                              setEditedLicense({ ...editedLicense, documents: newDocs })
-                            } else {
-                              handleDocumentStatusChange(index, checked as boolean)
-                            }
-                          }}
-                        />
                         {isEditing ? (
                           <div className="flex items-center gap-2 flex-1">
                             <Input
-                              value={doc.name}
+                              value={doc}
                               onChange={(e) => {
                                 const newDocs = [...editedLicense.documents]
-                                newDocs[index] = { ...doc, name: e.target.value }
+                                newDocs[index] = e.target.value
                                 setEditedLicense({ ...editedLicense, documents: newDocs })
                               }}
                               className="h-8"
@@ -450,17 +362,7 @@ export function LicenseCard({
                           </div>
                         ) : (
                           <div className="flex items-center justify-between flex-1">
-                            <span className="text-sm">{doc.name}</span>
-                            {doc.url && (
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="h-auto p-0"
-                                onClick={() => window.open(doc.url, '_blank')}
-                              >
-                                View
-                              </Button>
-                            )}
+                            <span className="text-sm">{doc}</span>
                           </div>
                         )}
                       </div>
@@ -474,8 +376,8 @@ export function LicenseCard({
                           setEditedLicense({
                             ...editedLicense,
                             documents: [
-                              ...editedLicense.documents,
-                              { name: "", uploaded: false }
+                              ...(editedLicense.documents || []),
+                              ""
                             ]
                           })
                         }}

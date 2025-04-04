@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import EventPageClient from "./event-page-client"
 import { FoodsProvider } from "@/hooks/use-foods"
+import { LicensesProvider } from "@/hooks/use-licenses"
 import { ChatSidebar } from "@/components/ai-chat/chat-sidebar"
 
 interface EventPageProps {
@@ -24,7 +25,9 @@ export default async function EventPage({
         {/* This div now takes full height relative to its ResizablePanel parent */}
         <div className="relative h-full overflow-auto">
           <FoodsProvider>
-            <EventPageClient eventId={id} />
+            <LicensesProvider>
+              <EventPageClient eventId={id} />
+            </LicensesProvider>
           </FoodsProvider>
         </div>
       </ChatSidebar>

@@ -9,6 +9,7 @@ class License(TypedDict):
     cost: float
     required_documents: List[str]
     notes: str
+    type: Literal["Venue", "Food", "Safety", "Entertainment", "Logistics"]
 
 class LicenseList(TypedDict):
     """A list of License items."""

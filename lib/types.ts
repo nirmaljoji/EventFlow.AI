@@ -58,16 +58,6 @@ export interface License {
   rejectionReason?: string
   cost: number
   icon: React.ElementType
-  requiredFields: {
-    name: string
-    type: "text" | "email" | "tel" | "textarea" | "date" | "file" | "number"
-    required: boolean
-    description?: string
-  }[]
-  documents: {
-    name: string
-    uploaded: boolean
-    url?: string
-  }[]
+  documents: string[]
   notes?: string
 }

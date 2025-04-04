@@ -4,6 +4,7 @@ export type License = {
     cost: number;
     required_documents: string[];
     notes: string;
+    type: string;
   };
 
   export type Food = {
