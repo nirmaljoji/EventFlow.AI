@@ -15,3 +15,4 @@ class FoodList(TypedDict):
 class AgentState(MessagesState):
     """The state of the agent."""
     foods: List[Food]
+    

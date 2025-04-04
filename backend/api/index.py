@@ -35,7 +35,7 @@ sdk = CopilotKitRemoteEndpoint(
         LangGraphAgent(
             name="eventflow_agent",
             description="You are an Assistnat to manage events",
-            agent = license_graph,
+            agent = license_graph
         )
     ],
 )

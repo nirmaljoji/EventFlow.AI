@@ -5,6 +5,9 @@ from langchain_core.tools import tool
 from .state import AgentState, Food
 from copilotkit.langgraph import copilotkit_emit_message
 from .state import AgentState, Food, FoodList
+from bson import ObjectId
+from datetime import datetime
+from ...database.mongodb import MongoDB
 
 async def foods_node(state: AgentState, config: RunnableConfig): # pylint: disable=unused-argument
     """
@@ -50,9 +53,38 @@ def add_foods(foods: List[Food]):
 
 def handle_add_foods(state: AgentState, args: dict) -> AIMessage:
     foods = args.get("foods", [])
+    
+    try:
+        # Get MongoDB collection
+        collection = MongoDB.client.eventflow_db.event_food
+        
+        # Store each food item in MongoDB
+        for food in foods:
+            menu_item = {
+                "name": food.get("name", ""),
+                "type": food.get("type", ""),
+                "dietary": food.get("dietary", ""),
+                "status": "pending"
+            }
+            collection.update_one(
+                {"event_id": ObjectId('67e74b13ffdc7b65f3f181d5')},
+                {
+                    "$push": {"menu_items": menu_item},
+                    "$inc": {
+                        "summary.menu_item_count": 1,
+                        "summary.dietary_options_count": 1 if menu_item["dietary"] not in ["None", ""] else 0
+                    },
+                    "$set": {"summary.last_updated": datetime.utcnow()}
+                },
+                upsert=True
+            )
+        
+        # Update state after successful DB operation
+        state["foods"].extend(foods)
+        return AIMessage(content=f"Successfully added the foods to database and state!")
+    except Exception as e:
+        return AIMessage(content=f"Failed to add foods: {str(e)}")
 
-    state["foods"].extend(foods)
-    return AIMessage(content=f"Successfully added the foods!")
 
 # @tool
 # def delete_foods(trip_ids: List[str]):
